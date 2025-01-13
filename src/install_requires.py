@@ -1,4 +1,4 @@
-#Copyright Bail&Will&loaf0808
+#Copyright Bail&Will&loaf0808 2025
 #SkyNet:install_requires 依赖安装脚本
 
 PIP_REQUIRE = ['playsound','edge-tts']

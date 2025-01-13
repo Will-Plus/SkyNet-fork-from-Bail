@@ -23,7 +23,6 @@ class Sc(Word):
     def __init__(self,word:str,trans:str,learn:int,wrong:int,review:int):
         '''生词类初始化
 word(str):单词
-pro(str):音标
 trans(str):词义
 review(int※不可为float):复习时间戳'''
         self.word = word

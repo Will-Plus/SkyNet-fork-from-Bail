@@ -5,7 +5,7 @@ from tkinter import filedialog  #将在后期替换为libgui.filedialog，为了
 import os,libclass,csv,shutil,libgui,SkyNet,json,hashlib,traceback
 
 OSNAME = SkyNet.OSNAME
-LESSON_FILE_HEADER = 'bssenglish lesson file\n' #课程文件头
+LESSON_FILE_HEADER = 'SkyNet file\n' #课程文件头
 FILE_VERSION = 4    #当前课程文件版本
 
 home = os.path.expanduser('~')
