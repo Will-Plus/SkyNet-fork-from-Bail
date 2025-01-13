@@ -80,7 +80,7 @@ fn(str):文件名
     if current_file_version != FILE_VERSION:
         raise libclass.WrongFileVersion(f'{fn}: {current_file_version}，预期为{FILE_VERSION}')
     #读取课程内容
-    words = tuple(libclass.Word(*i) for i in readfromcsv(fn,2))
+    words = tuple(libclass.Word(*i) for i in readfromcsv(fn,2)) #错误
     md5 = get_file_md5(fn)
     progress_file_name = os.path.join(path['progress'],md5)
     with open(progress_file_name,encoding='utf-8') as progress_file:
