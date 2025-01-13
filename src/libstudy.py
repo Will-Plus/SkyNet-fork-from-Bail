@@ -2,7 +2,7 @@
 #SkyNet:libstudy 学习模块
 
 #导入模块
-import os
+# import os
 
 # def congratulate(filename):
 #     print(f"恭喜你学完({filename})")
@@ -34,42 +34,28 @@ wlst(list):包含要学习的单词对象的列表'''
         huilst.append(current_word)
         index += 1
         nextword()
-    def bu4():  #不会/不对，进入复习
+    def bu4():  #不会/不对，标为生词并进入下一个单词
+        nonlocal index
         sclst.append(current_word)
         translab.config(text=current_word.trans)
-        huibtn.grid_forget()
-        buhuibtn.grid_forget()
-        duibtn.grid_forget()
-        buduibtn.grid_forget()
-        recitebtn.grid(row=2)
-        recite(2)
-    def recite(ci4:int):   #下一次复习
-        '''复习
-ci(int):剩余复习次数'''
-        if ci4 <= -1: #复习完了   #使用`<=`防止出现bug  #使用`-1`为了满足复习3次
-            nonlocal index
-            index += 1
-            recitebtn.grid_forget()
-            nextword()
-        else:   #没复习完
-            recitebtn.config(text=f'复习（剩余{ci4}次）',command=lambda:recite(ci4-1))
+        index += 1
+        nextword()
     def nextword():
         nonlocal index  #防止下一行的判断出现bug
         if index == len(wlst):  #如果是最后一个单词
-            libgui.showinfo('恭喜你学完({filename})',parent=win)
+            libgui.showinfo(f'恭喜你学完({lesson.fullname})',parent=win)
             close()
         else:
             #隐藏按钮
             duibtn.grid_forget()
             buduibtn.grid_forget()
-            recitebtn.grid_forget()
             translab.config(text='')
 
             #初始化变量
             nonlocal current_word   #index上面已经声明
             current_word = wlst[index]
 
-            #播放等
+            #显示
             win.title(f'记忆 {index+1}/{len(wlst)}')
             wordlab.config(text=current_word.word)
             huibtn.grid(row=0,column=0)
@@ -89,7 +75,7 @@ ci(int):剩余复习次数'''
     #初始化界面
     win = libgui.remember(root)
     win.protocol('WM_DELETE_WINDOW',close)
-    wordlab,translab,huibtn,buhuibtn,duibtn,buduibtn,recitebtn = win.wordlab,win.translab,win.huibtn,win.buhuibtn,win.duibtn,win.buduibtn,win.recitebtn
+    wordlab,translab,huibtn,buhuibtn,duibtn,buduibtn = win.wordlab,win.translab,win.huibtn,win.buhuibtn,win.duibtn,win.buduibtn
     huibtn.config(command=hui4)
     buhuibtn.config(command=bu4)
     duibtn.config(command=dui4)

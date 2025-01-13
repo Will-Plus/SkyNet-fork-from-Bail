@@ -83,14 +83,12 @@ root(tkinter.Tk):根窗口
     win.buhuibtn = Button(win.btnsframe,text='不会');win.buhuibtn.grid(row=0,column=1)
     win.duibtn = Button(win.btnsframe,text='对',);win.duibtn.grid(row=1,column=0)
     win.buduibtn = Button(win.btnsframe,text='不对');win.buduibtn.grid(row=1,column=1)
-    win.recitebtn = Button(win.btnsframe,text='复习');win.recitebtn.grid(row=2) #command在函数中设置
 
     #默认隐藏按钮
     win.huibtn.grid_forget()
     win.buhuibtn.grid_forget()
     win.duibtn.grid_forget()
     win.buduibtn.grid_forget()
-    win.recitebtn.grid_forget()
 
     return win
 def write(root:Tk)->list:
