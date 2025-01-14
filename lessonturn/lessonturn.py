@@ -23,15 +23,19 @@ class Raw2Lines:
             for k,l in enumerate(j): # 每一个单词
                 now = ''    # 当前单词
                 for m in l: # 每一个字符
-                    if not m.isalpha():
+                    if m.isdigit():
                        continue
                     now += m
                 j[k] = now
             self.en_lines[i] = j
+    def remove_spaces(self):
+        for i in self.en_lines:
+            while '' in i:
+                i.remove('')
     def check_length(self):
         for i in self.en_lines+self.zh_lines:
-            if len(i) != NUMBER_OF_WORD_IN_ONE_LINE:
-                i.append('#########')   # 数量错误，人工处理
+            if (length := len(i)) != NUMBER_OF_WORD_IN_ONE_LINE:
+                i.append(f'#########{length}')   # 数量错误，人工处理
     def save(self,filename:str):
         with open(filename,'w') as file:
             for i in range(int(self.line_number/2)):
@@ -71,6 +75,7 @@ def main():
     raw2lines = Raw2Lines()
     raw2lines.input()
     raw2lines.turn()
+    raw2lines.remove_spaces()
     raw2lines.check_length()
     raw2lines.save(filename)
     input('请手动编辑文件，按回车键继续')
