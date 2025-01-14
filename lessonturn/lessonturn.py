@@ -1,6 +1,6 @@
 NUMBER_OF_WORD_IN_ONE_LINE = 15 # 一行的单词数，用于判断异常
 
-import sys,json
+import sys,json,os
 
 class Raw2Lines:
     def __init__(self):
@@ -72,13 +72,14 @@ class Lines2Lesson:
 
 def main():
     filename = input('文件名 >')
-    raw2lines = Raw2Lines()
-    raw2lines.input()
-    raw2lines.turn()
-    raw2lines.remove_spaces()
-    raw2lines.check_length()
-    raw2lines.save(filename)
-    input('请手动编辑文件，按回车键继续')
+    if not os.path.exists(filename):
+        raw2lines = Raw2Lines()
+        raw2lines.input()
+        raw2lines.turn()
+        raw2lines.remove_spaces()
+        raw2lines.check_length()
+        raw2lines.save(filename)
+        input('请手动编辑文件，按回车键继续')
     lines2lesson = Lines2Lesson.from_file(filename)
     lines2lesson.turn()
     lines2lesson.save(filename)
