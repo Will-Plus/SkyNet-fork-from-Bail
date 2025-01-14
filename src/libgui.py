@@ -48,7 +48,7 @@ def root():
     lessons_frame.pack(anchor=NW)
     root.lessons_frame = lessons_frame  #把这个frame夹带出去，方便其他函数使用。后期将会把libgui用class重写，届时将不需要这样操作
 
-    Label(root,text='Bail 对此项目的支持与帮助&对此项目的源代码的贡献！',fg='#7f7f7f').pack(side=BOTTOM,fill=X)
+    Label(root,text='特别感谢：Bail 对此项目的支持与帮助&对此项目的源代码的贡献！',fg='#7f7f7f').pack(side=BOTTOM,fill=X)
     return root
 def count_need_review(root:Tk):
     '''统计需要复习的单词数
