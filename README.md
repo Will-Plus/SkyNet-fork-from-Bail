@@ -9,9 +9,9 @@ SkyNet（天网）考察英语单词，并附上单词释义
 # 使用方法：
 
 1. 下载并安装`git`
-2. 拉取此项目
+2. 克隆此项目
     ``` 
-    git pull https://github.com/Will-Plus/SkyNet.git
+    git clone https://github.com/Will-Plus/SkyNet.git
     ```
 3. 安装`Python3.x`环境
 4. 打开`SkyNet.py`文件
