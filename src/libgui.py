@@ -5,7 +5,7 @@
 from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 from _tkinter import TclError
-import libsc as sc,libfile,SkyNet,libclass,libstudy
+import libsc as sc,libfile,libclass,libstudy
 
 #定义一个函数，用于在root窗口中显示课程列表
 def inroot(root: Tk, lessonlst: list):
@@ -100,10 +100,12 @@ root(tkinter.Tk):根窗口
     win.title('默写')
 
     #放置组件
-    win.translab = Label(win);win.translab.grid(row=0)
-    win.entry = Entry(win);win.entry.grid(row=1,column=0)
-    win.judgelab = Label(win);win.judgelab.grid(row=1,column=1)
-    win.wordlab = Label(win);win.wordlab.grid(row=2)
+    win.translab = Label(win);win.translab.pack()
+    entryframe = Frame(win);entryframe.pack()
+    win.lenlab = Label(entryframe);win.lenlab.grid(row=0,column=0)
+    win.entry = Entry(entryframe);win.entry.grid(row=0,column=1)
+    win.judgelab = Label(entryframe);win.judgelab.grid(row=0,column=2)
+    win.wordlab = Label(win);win.wordlab.pack()
 
     return win
     #现在问题:所有窗口(包括主窗口)都关闭后才会return
