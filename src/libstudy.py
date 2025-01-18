@@ -95,7 +95,7 @@ wlst(list):包含要学习的单词对象的列表'''
             entry.config(state=libgui.DISABLED)
             wordlab.config(text=current_word.word)
             myinput = entry.get()
-            if myinput == current_word.word:
+            if myinput == current_word.word[1:]:
                 judgelab['text'] = '(v)'
                 huilst.append(current_word)
                 status = True
@@ -127,6 +127,7 @@ wlst(list):包含要学习的单词对象的列表'''
             #显示下一个单词
             win.title(f'默写 {index+1}/{len(wlst)}')
             judgelab.config(text='')
+            lenlab.config(text=f'{len(current_word.word)}){current_word.word[0]}')
             entry.config(state=libgui.NORMAL)
             entry.delete(0,libgui.END)
             translab.config(text=current_word.trans)
@@ -148,7 +149,7 @@ wlst(list):包含要学习的单词对象的列表'''
     #初始化界面
     win = libgui.write(root)
     win.protocol('WM_DELETE_WINDOW',close)
-    translab,entry,judgelab,wordlab = win.translab,win.entry,win.judgelab,win.wordlab
+    translab,lenlab,entry,judgelab,wordlab = win.translab,win.lenlab,win.entry,win.judgelab,win.wordlab
     entry.bind('<Return>',lambda event:enter())
 
     #显示第一个单词

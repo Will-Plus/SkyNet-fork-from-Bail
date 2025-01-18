@@ -1,4 +1,0 @@
-#!/data/data/com.termux/files/usr/bin/sh
-if [ -d "$PREFIX/usr/lib/bssenglish/__pycache__" ]; then
-    rm -r $PREFIX/usr/lib/bssenglish/__pycache__
-fi

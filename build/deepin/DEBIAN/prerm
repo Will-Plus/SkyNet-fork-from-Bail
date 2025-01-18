@@ -1,7 +1,0 @@
-#!/bin/sh
-if [ -d "/opt/apps/com.Bail.bssenglish/files/__pycache__" ]; then
-    rm -r /opt/apps/com.Bail.bssenglish/files/__pycache__
-fi
-
-##rm -r /home/*/.config/bss
-##rm -r /home/*/.cache/bss
