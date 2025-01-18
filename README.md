@@ -5,7 +5,7 @@ SkyNet（天网）考察英语单词，并附上单词释义
 
 - 项目地址：https://github.com/BailPlus/bssenglish
 
-- 本项目地址：https://github.com/Will-Plus/SkyNet
+- 本项目地址：https://github.com/Will-Plus/SkyNet--forkfrom-Bail
 # 使用方法：
 
 1. 下载并安装`git`
