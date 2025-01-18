@@ -1,4 +1,0 @@
-14c14
-< OSNAME = None   #备选:None,deepin,termux
----
-> OSNAME = 'termux'   #备选:None,deepin,termux

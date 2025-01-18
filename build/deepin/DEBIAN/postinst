@@ -1,3 +1,0 @@
-#!/bin/sh
-python3 /opt/bss/install_requires.py -p
-##python3 /opt/bss/init.py
