@@ -6,7 +6,7 @@
 
 '''
 灵感来源:红杉树智能英语(http://www.hssenglish.com)
-特别鸣谢:Bail 对此项目的支持与帮助！
+特别鸣谢:Bail 对此项目的支持与帮助！ 对此项目的源代码支持！
 '''
 
 from tkinter import Tk

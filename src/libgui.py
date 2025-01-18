@@ -2,12 +2,15 @@
 #SkyNet:libgui 图形界面模块
 
 #定义一个函数，用于在root窗口中显示课程列表
-def inroot(root:Tk,lessonlst:list):
+def inroot(root: Tk, lessonlst: list):
     frame = root.lessons_frame
-    for i,lesson in enumerate(lessonlst):
-        Label(frame,text=lesson.name).grid(row=i,column=0)
-        Button(frame,text=f'记忆 {lesson.progress[0]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.remember(root,arg)).grid(row=i,column=1)
-        Button(frame,text=f'默写 {lesson.progress[2]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.write(root,arg)).grid(row=i,column=3)
+    for i, lesson in enumerate(lessonlst):
+        Label(frame, text=lesson.name).grid(row=i, column=0)
+        Button(frame, text=f'记忆 {lesson.progress[0]}/{len(lesson.words)}', 
+               command=lambda arg=lesson: libstudy.remember(root, arg)).grid(row=i, column=1)
+        Button(frame, text=f'默写 {lesson.progress[2]}/{len(lesson.words)}', 
+               command=lambda arg=lesson: libstudy.write(root, arg)).grid(row=i, column=3)
+        Button(frame, text='课程信息', command=lambda arg=lesson: lesson_info(root, arg)).grid(row=i, column=4)
 
 from tkinter import *
 from tkinter import messagebox as msgbox,ttk
@@ -49,13 +52,6 @@ def root():
 
     Label(root,text='特别鸣谢：红杉树智能英语(http://www.hssenglish.com)提供运行逻辑 Bail 对此项目的支持与帮助！,fg='#7f7f7f').pack(side=BOTTOM,fill=X)
     return root
-def inroot(root:Tk,lessonlst:list):
-    root = root.lessons_frame
-    for i,lesson in enumerate(lessonlst):
-        Label(root,text=lesson.name).grid(row=i,column=0)
-        Button(root,text=f'记忆 {lesson.progress[0]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.remember(root,arg)).grid(row=i,column=1)
-        Button(root,text=f'默写 {lesson.progress[2]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.write(root,arg)).grid(row=i,column=3)
-        Button(root,text='课程信息',command=lambda arg=lesson:lesson_info(root,arg)).grid(row=i,column=4)
 def count_need_review(root:Tk):
     '''统计需要复习的单词数
 root(tkinter.Tk):（包含三个Label属性的）根窗口'''
@@ -131,45 +127,38 @@ lesson(libclass.Lesson):课程'''
     Label(book,text=f'作者：{lesson.author}').pack(anchor=NW)
 
     #单词表
-    tree = ttk.Treeview(book,columns=('音标','词义'));tree.pack()
+    tree = ttk.Treeview(book,columns=('词义'));tree.pack()
     for i in lesson.words:
-        tree.insert('','end',text=i.word,values=(i.pronounce,i.trans))
-def download(root:Tk,wordnum:int):
-    '''下载音频文件进度条窗口
+        tree.insert('','end',text=i.word,values=(i.trans))
 root(tkinter.Tk):根窗口
 wordnum(int):单词数量
-返回值:用于更新进度条的函数(func)'''
-    def update(value:int):
-        per = int(value/wordnum*100)
-        bar['value'] = per
-        label['text'] = f'{per}%'
-        down.update()
-        if per == 100:
-            msgbox.showinfo('提示','下载完成',parent=down)
-            down.destroy()
-
-    down = Toplevel(root)
-    down.title('下载中...')
-
-    bar = ttk.Progressbar(down);bar.pack()
-    label = Label(down,text='0%');label.pack()
-    return update
+'''返回值:用于更新进度条的函数(func)'''
 def show_notice(root:Tk,notice:str):
     msgbox.showinfo('公告',notice,parent=root)
 def showinfo(msg:str,parent=None):
     '''显示提示信息
 msg(str):提示信息的内容
-parent(tkinter的窗口对象，包含Tk和Toplevel等):提示信息附属的窗口'''
+parent(tkinter的窗口对象,包含Tk和Toplevel等):提示信息附属的窗口'"
     msgbox.showinfo('提示',msg,parent=parent)
+def showwarning(msg:str,parent=None):
+    '''显示警告信息
+msg(str):警告信息的内容
+parent(tkinter的窗口对象,包含Tk和Toplevel等):警告信息附属的窗口''''
+    msgbox.showwarning('警告',msg,parent=parent)
+    print(f'W: {msg}')
 def showerror(msg:str,parent=None):
     '''显示错误信息
 msg(str):错误信息的内容
-parent(tkinter的窗口对象，包含Tk和Toplevel等):错误信息附属的窗口'''
+parent(tkinter的窗口对象,包含Tk和Toplevel等):错误信息附属的窗口''''
     msgbox.showerror('错误',msg,parent=parent)
+    print(f'E: {msg}')
 def init(root:Tk,lessonlst:list):
     '''初始化界面
 root(tkinter.Tk):根窗口
 lessonlst(list):课程对象列表'''
+    #初始化课程列表
     inroot(root,lessonlst)
     count_need_review(root)
-    print('界面初始化完毕')
+    msgbox.showsuccess('初始化成功',msg,parent=parent)
+    print(f'S: {msg}')
+print("界面初始化成功!")
