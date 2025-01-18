@@ -1,16 +1,14 @@
-#Copyright Bail 2021-2023
-#bssenglish:libwordclass 单词类模块
+#Copyright Bail&Will&loaf0808 2025
+#SkyNet:libwordclass 单词类模块
 
 Word = Sc = Lesson = None   #先定义一下，防止循环依赖时报错AttributeError
                             #这个问题在d48ccdb2d22ddd2672e17d05bb1bf7d659c6c5e4已经出现，暂无更好解决方案
 
-import libaudio
 
 class Word:
     '''单词类'''
-    def __init__(self,word:str,pronounce:str,trans:str):
+    def __init__(self,word:str,trans:str):
         self.word = word
-        self.pronounce = pronounce
         self.trans = trans
     def __str__(self)->str:
         return self.word

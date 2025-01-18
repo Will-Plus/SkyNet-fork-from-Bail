@@ -1,5 +1,5 @@
-#Copyright Bail 2021-2023
-#bssenglish:libsc 生词模块
+#Copyright Bail&Will&loaf0808 2025
+#SkyNet:libsc 生词模块
 
 from tkinter import *
 from tkinter import messagebox as msgbox,ttk
@@ -43,9 +43,8 @@ root(Tk):bss根窗口'''
     Button(rembtns,text='立即复习',command=lambda:review(scmain,'remember')).grid()
 ##    Button(rembtns,text='导入',command=lambda:imp(remlst)).grid(row=0,column=1)
 ##    Button(rembtns,text='导出',command=lambda:exp(remlst)).grid(row=0,column=2)
-    remtree = ttk.Treeview(screm,columns=('音标','词义','学习次数','错误次数','记忆强度','复习时间'));remtree.pack()
+    remtree = ttk.Treeview(screm,columns=('词义','学习次数','错误次数','记忆强度','复习时间'));remtree.pack()
 
-    remtree.heading('音标',text='音标',command=lambda:treesort(remtree,'音标',False))
     remtree.heading('词义',text='词义',command=lambda:treesort(remtree,'词义',False))
     remtree.heading('学习次数',text='学习次数',command=lambda:treesort(remtree,'学习次数',False))
     remtree.heading('错误次数',text='错误次数',command=lambda:treesort(remtree,'错误次数',False))
@@ -58,9 +57,8 @@ root(Tk):bss根窗口'''
     Button(lisbtns,text='立即复习',command=lambda:review(scmain,'listen')).grid()
 ##    Button(lisbtns,text='导入',command=lambda:imp(lislst)).grid(row=0,column=1)
 ##    Button(lisbtns,text='导出',command=lambda:exp(lislst)).grid(row=0,column=2)
-    listree = ttk.Treeview(sclis,columns=('音标','词义','学习次数','错误次数','记忆强度','复习时间'));listree.pack()
+    listree = ttk.Treeview(sclis,columns=('词义','学习次数','错误次数','记忆强度','复习时间'));listree.pack()
 
-    listree.heading('音标',text='音标',command=lambda:treesort(listree,'音标',False))
     listree.heading('词义',text='词义',command=lambda:treesort(listree,'词义',False))
     listree.heading('学习次数',text='学习次数',command=lambda:treesort(listree,'学习次数',False))
     listree.heading('错误次数',text='错误次数',command=lambda:treesort(listree,'错误次数',False))
@@ -73,9 +71,8 @@ root(Tk):bss根窗口'''
     Button(wribtns,text='立即复习',command=lambda:review(scmain,'write')).grid()
 ##    Button(wribtns,text='导入',command=lambda:imp(wrilst)).grid(row=0,column=1)
 ##    Button(wribtns,text='导出',command=lambda:exp(wrilst)).grid(row=0,column=2)
-    writree = ttk.Treeview(scwri,columns=('音标','词义','学习次数','错误次数','记忆强度','复习时间'));writree.pack()
+    writree = ttk.Treeview(scwri,columns=('词义','学习次数','错误次数','记忆强度','复习时间'));writree.pack()
 
-    writree.heading('音标',text='音标',command=lambda:treesort(writree,'音标',False))
     writree.heading('词义',text='词义',command=lambda:treesort(writree,'音标',False))
     writree.heading('学习次数',text='学习次数',command=lambda:treesort(writree,'音标',False))
     writree.heading('错误次数',text='错误次数',command=lambda:treesort(writree,'音标',False))
@@ -106,21 +103,21 @@ def intree(remtree:ttk.Treeview,listree:ttk.Treeview,writree:ttk.Treeview):
     for i in remlst:
         remtree.insert('','end',
                        text=i.word,	#单词
-                       values=(i.pronounce,i.trans,	#发音，词义
+                       values=(i.trans,	#词义
                                i.learn,i.wrong,	#学习次数，错误次数
                                i.strenth(),	#记忆强度
                                reviewtime(i)))	#复习时间
     for i in lislst:
         listree.insert('','end',
                        text=i.word,	#单词
-                       values=(i.pronounce,i.trans,	#发音，词义
+                       values=(i.trans,	#词义
                                i.learn,i.wrong,	#学习次数，错误次数
                                i.strenth(),	#记忆强度
                                reviewtime(i)))	#复习时间
     for i in wrilst:
         writree.insert('','end',
                        text=i.word,	#单词
-                       values=(i.pronounce,i.trans,	#发音，词义
+                       values=(i.trans,	#词义
                                i.learn,i.wrong,	#学习次数，错误次数
                                i.strenth(),	#记忆强度
                                reviewtime(i)))	#复习时间

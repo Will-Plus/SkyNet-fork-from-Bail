@@ -1,5 +1,5 @@
-#Copyright Bail 2021
-#bssenglish:liblist 列表处理模块
+#Copyright Bail&Will&loaf0808 2025
+#SkyNet:liblist 列表处理模块
 
 def other(lst:list,ulst:list):
     '''对一个列表取补集

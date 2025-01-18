@@ -1,4 +1,4 @@
-#SkyNet
+#SkyNet 主程序文件
 #!/usr/bin/python3
 #coding:utf-8
 #Copyright Bail&Will&loaf0808 2025
@@ -6,6 +6,7 @@
 
 '''
 灵感来源:红杉树智能英语(http://www.hssenglish.com)
+特别鸣谢:Bail 对此项目的支持与帮助！
 '''
 
 from tkinter import Tk
@@ -20,7 +21,7 @@ elif OSNAME in ('posix',):
 else:
     raise EnvironmentError('系统不支持')
 sys.path.append(import_path)
-import libgui,libfile,libsc,init,libnotice
+import libgui,libfile,libsc,init
 
 def loadplugins():
     '''加载模块'''
@@ -41,7 +42,6 @@ def main():
     loadplugins()
     libsc.readfile()
     root = libgui.root()
-    libnotice.process(root)
     lessonlst = libfile.getlessons()
     libgui.init(root,lessonlst)
 ##    files = libfile.getfile()

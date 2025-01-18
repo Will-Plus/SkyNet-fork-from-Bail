@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-#Copyright Bail 2024
-#bssenglish:lesson_editor 课程文件编辑器 v1.0_1
-#2024.7.19-2024.7.22
+#Copyright Bail&Will&loaf0808 2025
+#SkyNet:lesson_editor 课程文件编辑器 v1.0_1
 
 from tkinter import *
 from tkinter import filedialog

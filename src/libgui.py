@@ -1,14 +1,22 @@
-#Copyright Bail 2021-2023
-#bssenglish:libgui 图形界面模块
+#Copyright Bail&Will&loaf0808 2025
+#SkyNet:libgui 图形界面模块
+
+#定义一个函数，用于在root窗口中显示课程列表
+def inroot(root:Tk,lessonlst:list):
+    frame = root.lessons_frame
+    for i,lesson in enumerate(lessonlst):
+        Label(frame,text=lesson.name).grid(row=i,column=0)
+        Button(frame,text=f'记忆 {lesson.progress[0]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.remember(root,arg)).grid(row=i,column=1)
+        Button(frame,text=f'默写 {lesson.progress[2]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.write(root,arg)).grid(row=i,column=3)
 
 from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 from _tkinter import TclError
-import libsc as sc,libfile,libaudio,libnetwork,libclass,libstudy
+import libsc as sc,libfile,SkyNet,libclass,libstudy
 
 def root():
     root = Tk()
-    root.title('白杉树背单词训练软件')
+    root.title('SkyNet')
     root.geometry('800x600')
     try:
         root.iconphoto(False,PhotoImage(file=libfile.getpath('icon')))
@@ -19,7 +27,6 @@ def root():
     lesson_choose_frame.pack(anchor=NW)
     Label(lesson_choose_frame,text='请选择课程').grid()
     Button(lesson_choose_frame,text='添加课程',command=libfile.add_lesson).grid(row=0,column=1)
-    Button(lesson_choose_frame,text='获取课程',command=libnetwork.open_browser_to_fetch_lessons).grid(row=0,column=2)
     root.lesson_choose_frame = lesson_choose_frame
 
     sccontrol_frame = Frame(root)
@@ -40,17 +47,15 @@ def root():
     lessons_frame.pack(anchor=NW)
     root.lessons_frame = lessons_frame  #把这个frame夹带出去，方便其他函数使用。后期将会把libgui用class重写，届时将不需要这样操作
 
-    Label(root,text='特别鸣谢：红杉树智能英语(http://www.hssenglish.com)提供运行逻辑',fg='#7f7f7f').pack(side=BOTTOM,fill=X)
+    Label(root,text='特别鸣谢：红杉树智能英语(http://www.hssenglish.com)提供运行逻辑 Bail 对此项目的支持与帮助！,fg='#7f7f7f').pack(side=BOTTOM,fill=X)
     return root
 def inroot(root:Tk,lessonlst:list):
     root = root.lessons_frame
     for i,lesson in enumerate(lessonlst):
         Label(root,text=lesson.name).grid(row=i,column=0)
         Button(root,text=f'记忆 {lesson.progress[0]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.remember(root,arg)).grid(row=i,column=1)
-        Button(root,text=f'听写 {lesson.progress[1]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.listen(root,arg)).grid(row=i,column=2)
         Button(root,text=f'默写 {lesson.progress[2]}/{len(lesson.words)}',command=lambda arg=lesson:libstudy.write(root,arg)).grid(row=i,column=3)
         Button(root,text='课程信息',command=lambda arg=lesson:lesson_info(root,arg)).grid(row=i,column=4)
-        Button(root,text='下载音频',command=lambda arg=lesson:libaudio.download(root,arg)).grid(row=i,column=5)
 def count_need_review(root:Tk):
     '''统计需要复习的单词数
 root(tkinter.Tk):（包含三个Label属性的）根窗口'''
@@ -64,8 +69,6 @@ root(tkinter.Tk):（包含三个Label属性的）根窗口'''
     for i in ('rem','lis','wri'):
         if i == 'rem':
             sub = '记忆'
-        elif i == 'lis':
-            sub = '听写'
         elif i == 'wri':
             sub = '默写'
 
@@ -99,22 +102,6 @@ root(tkinter.Tk):根窗口
     win.recitebtn.grid_forget()
 
     return win
-def listen(root:Tk)->list:
-    '''听写模块界面
-root(tkinter.Tk):根窗口
-返回值:带有组件属性的听写窗口(tkinter.Toplevel)'''
-    #窗口初始化
-    win = Toplevel(root)
-    win.title('听写')
-
-    #放置组件
-    win.pronlab = Label(win);win.pronlab.grid(row=0)
-    win.entry = Entry(win);win.entry.grid(row=1,column=0)
-    win.judgelab = Label(win);win.judgelab.grid(row=1,column=1)
-    win.wordlab = Label(win);win.wordlab.grid(row=2)
-
-    return win
-    #现在问题:所有窗口(包括主窗口)都关闭后才会return
 def write(root:Tk)->list:
     '''默写模块界面
 root(tkinter.Tk):根窗口

@@ -1,6 +1,5 @@
-#Copyright Bail 2021-2023
-#bssenglish:init 程序初始化
-#2021.10.16-2023.1.17
+#Copyright Bail&Will&loaf0808 
+#SkyNet:init 程序初始化
 
 import sys,os,libsc,libfile
 

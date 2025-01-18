@@ -1,5 +1,21 @@
-#Copyright Bail 2023
-#bssenglish:libstudy 学习模块
+#Copyright Bail&Will&loaf0808 2025
+#SkyNet:libstudy 学习模块
+
+#导入模块
+import os
+
+def congratulate(filename):
+    print(f"恭喜你学完({filename})")
+
+file_path = "SkyNet"
+
+if os.path.isfile(file_path):
+    # 提取文件名
+    file_name = os.path.basename(file_path)
+    congratulate(file_name)
+else:
+    print("文件不存在，请检查文件名。")
+
 
 import libgui,libsc,libclass
 
@@ -41,7 +57,7 @@ ci(int):剩余复习次数'''
     def nextword():
         nonlocal index  #防止下一行的判断出现bug
         if index == len(wlst):  #如果是最后一个单词
-            libgui.showinfo('恭喜你学完本课',parent=win)
+            libgui.showinfo('恭喜你学完({filename})',parent=win)
             close()
         else:
             #隐藏按钮
@@ -85,10 +101,6 @@ ci(int):剩余复习次数'''
 
     #显示第一个单词
     nextword()
-def listen(root:libgui.Tk,lesson:libclass.Lesson):
-    '''听写模块
-root(tkinter.Tk):根窗口
-wlst(list):包含要学习的单词对象的列表'''
     def enter():
         nonlocal current_word,status,index,sclst
 
@@ -107,16 +119,11 @@ wlst(list):包含要学习的单词对象的列表'''
         elif status == True:    #已判，正确：下一个
             index += 1
             nextword()
-        elif status == False:   #已判，错误：进入抄写
+        elif status == False:   #已判，错误
             judgelab.config(text='')
             entry.config(state=libgui.NORMAL)
             entry.delete(0,libgui.END)
             current_word.play()
-            status = 'copy'
-        elif status == 'copy':  #抄写：判※不加生词熟词列表
-            entry.config(state=libgui.DISABLED)
-            wordlab.config(text=current_word.word)
-            myinput = entry.get()
             if myinput == current_word.word:
                 judgelab['text'] = '(v)'
                 status = True
@@ -127,7 +134,7 @@ wlst(list):包含要学习的单词对象的列表'''
             raise ValueError(f'错误的状态: {status}')
     def nextword():
         if index == len(wlst):    #如果是最后一个单词
-            libgui.showinfo('恭喜你学完本课',parent=win)
+            libgui.showinfo('恭喜你学完({filename})',parent=win)
             close()
         else:
             #初始化变量
@@ -136,7 +143,6 @@ wlst(list):包含要学习的单词对象的列表'''
             status = None
 
             #显示下一个单词
-            win.title(f'听写 {index+1}/{len(wlst)}')
             judgelab.config(text='')
             entry.config(state=libgui.NORMAL)
             entry.delete(0,libgui.END)
@@ -151,8 +157,8 @@ wlst(list):包含要学习的单词对象的列表'''
     #初始化各种变量
     wlst = lesson.words #单词列表
     index = lesson.progress[1]  #当前学习的单词在单词列表中的索引
-    status = None   #备选：None,True,False,'copy'
-                    #None:未判；True:已判，正确；False:已判，错误；'copy':抄写
+    status = None   #备选：None,True,False
+                    #None:未判；True:已判，正确；False:已判，错误
     sclst = []      #生词列表
     huilst = []     #熟词列表
     current_word:libclass.Word = None   #当前学习的单词
@@ -192,11 +198,6 @@ wlst(list):包含要学习的单词对象的列表'''
             judgelab.config(text='')
             entry.config(state=libgui.NORMAL)
             entry.delete(0,libgui.END)
-            status = 'copy'
-        elif status == 'copy':  #抄写：判※不加生词熟词列表
-            entry.config(state=libgui.DISABLED)
-            wordlab.config(text=current_word.word)
-            myinput = entry.get()
             if myinput == current_word.word:
                 judgelab['text'] = '(v)'
                 status = True
@@ -207,7 +208,7 @@ wlst(list):包含要学习的单词对象的列表'''
             raise ValueError(f'错误的状态: {status}')
     def nextword():
         if index == len(wlst):    #如果是最后一个单词
-            libgui.showinfo('恭喜你学完本课',parent=win)
+            libgui.showinfo('恭喜你学完({filename})',parent=win)
             close()
         else:
             #初始化变量
@@ -230,8 +231,8 @@ wlst(list):包含要学习的单词对象的列表'''
     #初始化各种变量
     wlst = lesson.words #单词列表
     index = lesson.progress[2]  #当前学习的单词在单词列表中的索引
-    status = None   #备选：None,True,False,'copy'
-                    #None:未判；True:已判，正确；False:已判，错误；'copy':抄写
+    status = None   #备选：None,True,False
+                    #None:未判；True:已判，正确；False:已判，错误
     sclst = []      #生词列表
     huilst = []     #熟词列表
     current_word:libclass.Word = None   #当前学习的单词

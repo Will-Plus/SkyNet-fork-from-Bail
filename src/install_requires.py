@@ -1,6 +1,5 @@
-#Copyright Bail 2021-2022
-#bssenglish:install_requires 依赖安装
-#2021.10.16-2022.7.20
+#Copyright Bail&Will&loaf0808
+#SkyNet:install_requires 依赖安装脚本
 
 PIP_REQUIRE = ['playsound','edge-tts']
 ##LINUX_REQUIRE = ['python3-gst-1.0']

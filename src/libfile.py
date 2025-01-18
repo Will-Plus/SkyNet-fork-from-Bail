@@ -1,10 +1,10 @@
-#Copyright Bail 2021-2023
-#bssenglish:libfile 文件处理模块
+#Copyright Bail&Will&loaf0808 2025
+#SkyNet:libfile 文件处理模块
 
 from tkinter import filedialog  #将在后期替换为libgui.filedialog，为了代码整洁
-import os,libclass,csv,shutil,libgui,__main__,json,hashlib,traceback
+import os,libclass,csv,shutil,libgui,bss,json,hashlib,traceback
 
-OSNAME = __main__.OSNAME
+OSNAME = bss.OSNAME
 LESSON_FILE_HEADER = 'bssenglish lesson file\n' #课程文件头
 FILE_VERSION = 4    #当前课程文件版本
 
@@ -32,7 +32,6 @@ path = {
 path1 = {
     'lessons':os.path.join(path['data'][OSNAME],'lessons'),
     'sc':os.path.join(path['data'][OSNAME],'sc'),
-    'audio':os.path.join(path['cache'][OSNAME],'audio'),
     'plugins':os.path.join(path['data'][OSNAME],'plugins'),
     'notice':os.path.join(path['data'][OSNAME],'notice'),
     'progress':os.path.join(path['data'][OSNAME],'progress'),
@@ -108,7 +107,7 @@ def saveascsv(lst:list,fn=None):
         fn = filedialog.asksaveasfilename(filetypes=[('CSV表格','.csv')])
     with open(fn,'w',newline='',encoding='utf-8') as file:
         writer = csv.writer(file,delimiter='\t')
-        writer.writerow(['单词','音标','词义','学习次数','错误次数','复习时间'])
+        writer.writerow(['单词','词义','学习次数','错误次数','复习时间'])
         for i in lst:
             writer.writerow(i.items())
 def getpath(name:str):  #此函数现已弃用，在版本兼容时起过渡作用。新版本应直接访问path字典。
