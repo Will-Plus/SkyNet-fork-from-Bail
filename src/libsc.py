@@ -5,7 +5,7 @@ from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 import time,libclass,os,libfile,libgui,libstudy,random
 
-remlst = [];lislst = [];wrilst = []
+remlst = [];wrilst = []
 
 def imp(lst:list):
     '''从外部csv导入生词'''
@@ -17,8 +17,8 @@ def exp(lst:list):
     libfile.saveascsv(lst)
 def readfile():
     '''读取生词文件'''
-    global remlst,lislst,wrilst
-    for i in ('rem','lis','wri'):
+    global remlst,wrilst
+    for i in ('rem','wri'):
         lst = eval(f'{i}lst')
         fn = os.path.join(libfile.getpath('sc'),f'{i}.csv')
         lst0 = libfile.readfromcsv(fn)
@@ -51,19 +51,6 @@ root(Tk):bss根窗口'''
     remtree.heading('记忆强度',text='记忆强度',command=lambda:treesort(remtree,'记忆强度',False))
     remtree.heading('复习时间',text='复习时间',command=lambda:treesort(remtree,'复习时间',False))
 
-    #听写模块生词
-    sclis = LabelFrame(scmain,text='听写模块');sclis.pack()
-    lisbtns = Frame(sclis);lisbtns.pack()
-    Button(lisbtns,text='立即复习',command=lambda:review(scmain,'listen')).grid()
-##    Button(lisbtns,text='导入',command=lambda:imp(lislst)).grid(row=0,column=1)
-##    Button(lisbtns,text='导出',command=lambda:exp(lislst)).grid(row=0,column=2)
-    listree = ttk.Treeview(sclis,columns=('词义','学习次数','错误次数','记忆强度','复习时间'));listree.pack()
-
-    listree.heading('词义',text='词义',command=lambda:treesort(listree,'词义',False))
-    listree.heading('学习次数',text='学习次数',command=lambda:treesort(listree,'学习次数',False))
-    listree.heading('错误次数',text='错误次数',command=lambda:treesort(listree,'错误次数',False))
-    listree.heading('记忆强度',text='记忆强度',command=lambda:treesort(listree,'记忆强度',False))
-    listree.heading('复习时间',text='复习时间',command=lambda:treesort(listree,'复习时间',False))
 
     #默写模块生词
     scwri = LabelFrame(scmain,text='默写模块');scwri.pack()
@@ -79,7 +66,7 @@ root(Tk):bss根窗口'''
     writree.heading('记忆强度',text='记忆强度',command=lambda:treesort(writree,'音标',False))
     writree.heading('复习时间',text='复习时间',command=lambda:treesort(writree,'音标',False))
 
-    return (scmain,remtree,listree,writree)
+    return (scmain,remtree,writree)
 def reviewtime(obj:libclass.Sc):
     '''计算到该单词复习时刻的时间
 obj(libclass.Sc):生词对象'''
@@ -98,17 +85,10 @@ obj(libclass.Sc):生词对象'''
 
     times = '{}月{}天{}时{}分{}秒'.format(*timelst)
     return times
-def intree(remtree:ttk.Treeview,listree:ttk.Treeview,writree:ttk.Treeview):
+def intree(remtree:ttk.Treeview,writree:ttk.Treeview):
 ##    rem,lis,wri = remlst,lislst,wrilst
     for i in remlst:
         remtree.insert('','end',
-                       text=i.word,	#单词
-                       values=(i.trans,	#词义
-                               i.learn,i.wrong,	#学习次数，错误次数
-                               i.strenth(),	#记忆强度
-                               reviewtime(i)))	#复习时间
-    for i in lislst:
-        listree.insert('','end',
                        text=i.word,	#单词
                        values=(i.trans,	#词义
                                i.learn,i.wrong,	#学习次数，错误次数
@@ -190,14 +170,12 @@ word(libclass.Sc):生词对象
         raise ValueError('值超出范围')
 def mark(study_type:str,sclst:list,huilst:list):
     '''处理生词与熟词
-study_type(str):课程类型 备选：remember,listen,write
+study_type(str):课程类型 备选：remember,write
 sclst(list):生词列表
 huilst(list):熟词列表'''
     #根据类型获取数据列表
     if study_type == 'remember':
         data = remlst
-    elif study_type == 'listen':
-        data = lislst
     elif study_type == 'write':
         data = wrilst
     else:
@@ -212,7 +190,7 @@ huilst(list):熟词列表'''
                 j.review = int(time.time()+deltatime(j))
                 break
         else:   #如果生词不存在
-            sc = libclass.Sc(i.word,i.pronounce,i.trans,1,1,int(time.time()))
+            sc = libclass.Sc(i.word,i.trans,1,1,int(time.time()))
             data.append(sc)
 
     #处理熟词
@@ -240,14 +218,11 @@ def review(scmain:Tk,sctype:str):
 scmain(tkinter.Toplevel):生词管理窗口
 sclst(list):要复习的单词列表
 lst(list):该类型的生词列表
-sctype(str:remember/listen/write):生词类型名称，用于调用libgui的函数'''
+sctype(str:remember/write):生词类型名称，用于调用libgui的函数'''
     #获取对应列表
     if sctype == 'remember':
         data = remlst
         func = libstudy.remember
-    elif sctype == 'listen':
-        data = lislst
-        func = libstudy.listen
     elif sctype == 'write':
         data = wrilst
         func = libstudy.write
@@ -263,7 +238,7 @@ sctype(str:remember/listen/write):生词类型名称，用于调用libgui的函�
     func(scmain,lesson)
 def savefile():
     '''将生词列表保存到文件'''
-    for i in ('rem','lis','wri'):
+    for i in ('rem','wri'):
         lst = eval(f'{i}lst')
         fn = os.path.join(libfile.getpath('sc'),f'{i}.csv')
         libfile.saveascsv(lst,fn)

@@ -1,6 +1,12 @@
 #Copyright Bail&Will&loaf0808 2025
 #SkyNet:libgui 图形界面模块
 
+
+from tkinter import *
+from tkinter import messagebox as msgbox,ttk
+from _tkinter import TclError
+import libsc as sc,libfile,SkyNet,libclass,libstudy
+
 #定义一个函数，用于在root窗口中显示课程列表
 def inroot(root: Tk, lessonlst: list):
     frame = root.lessons_frame
@@ -11,11 +17,6 @@ def inroot(root: Tk, lessonlst: list):
         Button(frame, text=f'默写 {lesson.progress[2]}/{len(lesson.words)}', 
                command=lambda arg=lesson: libstudy.write(root, arg)).grid(row=i, column=3)
         Button(frame, text='课程信息', command=lambda arg=lesson: lesson_info(root, arg)).grid(row=i, column=4)
-
-from tkinter import *
-from tkinter import messagebox as msgbox,ttk
-from _tkinter import TclError
-import libsc as sc,libfile,SkyNet,libclass,libstudy
 
 def root():
     root = Tk()
@@ -37,32 +38,27 @@ def root():
     Button(sccontrol_frame,text='生词管理',command=lambda:sc.control(root)).grid(row=0,column=0)
     rem_need_review_label = Label(sccontrol_frame)
     rem_need_review_label.grid(row=0,column=1)
-    lis_need_review_label = Label(sccontrol_frame)
-    lis_need_review_label.grid(row=0,column=2)
     wri_need_review_label = Label(sccontrol_frame)
     wri_need_review_label.grid(row=0,column=3)
-    #将三个Label添加为root的属性，临时解决方案
+    #将两个Label添加为root的属性，临时解决方案
     root.rem_need_review_label = rem_need_review_label
-    root.lis_need_review_label = lis_need_review_label
     root.wri_need_review_label = wri_need_review_label
 
     lessons_frame = Frame(root)
     lessons_frame.pack(anchor=NW)
     root.lessons_frame = lessons_frame  #把这个frame夹带出去，方便其他函数使用。后期将会把libgui用class重写，届时将不需要这样操作
 
-    Label(root,text='特别鸣谢：红杉树智能英语(http://www.hssenglish.com)提供运行逻辑 Bail 对此项目的支持与帮助！,fg='#7f7f7f').pack(side=BOTTOM,fill=X)
+    Label(root,text='特别鸣谢：红杉树智能英语(http://www.hssenglish.com)提供运行逻辑 Bail 对此项目的支持与帮助！',fg='#7f7f7f').pack(side=BOTTOM,fill=X)
     return root
 def count_need_review(root:Tk):
     '''统计需要复习的单词数
 root(tkinter.Tk):（包含三个Label属性的）根窗口'''
     remlab = root.rem_need_review_label
-    lislab = root.lis_need_review_label
     wrilab = root.wri_need_review_label
     rem = sc.remlst
-    lis = sc.lislst
     wri = sc.wrilst
 
-    for i in ('rem','lis','wri'):
+    for i in ('rem','wri'):
         if i == 'rem':
             sub = '记忆'
         elif i == 'wri':
@@ -81,7 +77,6 @@ root(tkinter.Tk):根窗口
 
     #放置组件
     win.wordlab = Label(win);win.wordlab.pack()
-    win.pronlab = Label(win);win.pronlab.pack()
     win.translab = Label(win);win.translab.pack()
     win.btnsframe = Frame(win);win.btnsframe.pack()
     win.huibtn = Button(win.btnsframe,text='会');win.huibtn.grid(row=0,column=0)
@@ -130,26 +125,24 @@ lesson(libclass.Lesson):课程'''
     tree = ttk.Treeview(book,columns=('词义'));tree.pack()
     for i in lesson.words:
         tree.insert('','end',text=i.word,values=(i.trans))
-root(tkinter.Tk):根窗口
-wordnum(int):单词数量
-'''返回值:用于更新进度条的函数(func)'''
+
 def show_notice(root:Tk,notice:str):
     msgbox.showinfo('公告',notice,parent=root)
 def showinfo(msg:str,parent=None):
     '''显示提示信息
 msg(str):提示信息的内容
-parent(tkinter的窗口对象,包含Tk和Toplevel等):提示信息附属的窗口'"
+parent(tkinter的窗口对象,包含Tk和Toplevel等):提示信息附属的窗口'''
     msgbox.showinfo('提示',msg,parent=parent)
 def showwarning(msg:str,parent=None):
     '''显示警告信息
 msg(str):警告信息的内容
-parent(tkinter的窗口对象,包含Tk和Toplevel等):警告信息附属的窗口''''
+parent(tkinter的窗口对象,包含Tk和Toplevel等):警告信息附属的窗口'''
     msgbox.showwarning('警告',msg,parent=parent)
     print(f'W: {msg}')
 def showerror(msg:str,parent=None):
     '''显示错误信息
 msg(str):错误信息的内容
-parent(tkinter的窗口对象,包含Tk和Toplevel等):错误信息附属的窗口''''
+parent(tkinter的窗口对象,包含Tk和Toplevel等):错误信息附属的窗口'''
     msgbox.showerror('错误',msg,parent=parent)
     print(f'E: {msg}')
 def init(root:Tk,lessonlst:list):
@@ -159,6 +152,3 @@ lessonlst(list):课程对象列表'''
     #初始化课程列表
     inroot(root,lessonlst)
     count_need_review(root)
-    msgbox.showsuccess('初始化成功',msg,parent=parent)
-    print(f'S: {msg}')
-print("界面初始化成功!")

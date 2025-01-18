@@ -7,7 +7,7 @@ Word = Sc = Lesson = None   #先定义一下，防止循环依赖时报错Attrib
 
 class Word:
     '''单词类'''
-    def __init__(self,word:str,pronounce:str,trans:str):
+    def __init__(self,word:str,trans:str):
         self.word = word
         self.trans = trans
     def __str__(self)->str:
@@ -20,7 +20,7 @@ class Word:
 class Sc(Word):
     '''生词类 继承于:单词类'''
 ##    learn = wrong = 1	#学习1次，错误1次
-    def __init__(self,word:str,:str,trans:str,learn:int,wrong:int,review:int):
+    def __init__(self,word:str,trans:str,learn:int,wrong:int,review:int):
         '''生词类初始化
 word(str):单词
 trans(str):词义

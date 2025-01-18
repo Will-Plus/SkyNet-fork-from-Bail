@@ -2,25 +2,25 @@
 #SkyNet:libfile 文件处理模块
 
 from tkinter import filedialog  #将在后期替换为libgui.filedialog，为了代码整洁
-import os,libclass,csv,shutil,libgui,bss,json,hashlib,traceback
+import os,libclass,csv,shutil,libgui,SkyNet,json,hashlib,traceback
 
-OSNAME = bss.OSNAME
+OSNAME = SkyNet.OSNAME
 LESSON_FILE_HEADER = 'bssenglish lesson file\n' #课程文件头
 FILE_VERSION = 4    #当前课程文件版本
 
 home = os.path.expanduser('~')
 path = {
     'cache':{
-        'nt':os.path.join(home,'appdata','local','bss'),
-        'posix':os.path.join(home,'.cache','bss'),
-        'deepin':os.path.join(home,'.cache','bss'),
-        'termux':os.path.join(home,'.cache','bss')
+        'nt':os.path.join(home,'appdata','local','SkyNet'),
+        'posix':os.path.join(home,'.cache','SkyNet'),
+        'deepin':os.path.join(home,'.cache','SkyNet'),
+        'termux':os.path.join(home,'.cache','SkyNet')
     },
     'data':{
-        'nt':os.path.join(home,'appdata','roaming','bss'),
-        'posix':os.path.join(home,'.config','bss'),
-        'deepin':os.path.join(home,'.config','bss'),
-        'termux':os.path.join(home,'.config','bss')
+        'nt':os.path.join(home,'appdata','roaming','SkyNet'),
+        'posix':os.path.join(home,'.config','SkyNet'),
+        'deepin':os.path.join(home,'.config','SkyNet'),
+        'termux':os.path.join(home,'.config','SkyNet')
     },
     'icon':{    #不添加到<all>
         'nt':os.path.join(os.getcwd(),'bss.png'),
@@ -112,7 +112,7 @@ def saveascsv(lst:list,fn=None):
             writer.writerow(i.items())
 def getpath(name:str):  #此函数现已弃用，在版本兼容时起过渡作用。新版本应直接访问path字典。
     if name == '<all>':
-        return (getpath('audio'),getpath('lessons'),getpath('sc'),getpath('plugins'),getpath('notice'),getpath('progress')) #待优化:用for循环写
+        return (getpath('lessons'),getpath('sc'),getpath('plugins'),getpath('notice'),getpath('progress')) #待优化:用for循环写
     elif name in ('cache','data','icon'):
         return path[name][OSNAME]
     else:
