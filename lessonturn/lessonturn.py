@@ -37,7 +37,7 @@ class Raw2Lines:
             if (length := len(i)) != NUMBER_OF_WORD_IN_ONE_LINE:
                 i.append(f'#########{length}')   # 数量错误，人工处理
     def save(self,filename:str):
-        with open(filename,'w') as file:
+        with open(filename,'w',encoding='utf-8') as file:
             for i in range(int(self.line_number/2)):
                 print(json.dumps(self.en_lines[i]),file=file)
                 print(json.dumps(self.zh_lines[i],ensure_ascii=False),file=file)
@@ -49,7 +49,7 @@ class Csv2Lines:
         self.line_number = 0
     @classmethod
     def open(cls,filename:str):
-        file = open(filename)
+        file = open(filename,encoding='utf-8')
         reader = csv.reader(file)
         obj = cls(reader)
         obj.file = file
@@ -82,7 +82,7 @@ class Lines2Lesson:
     @classmethod
     def from_file(cls,filename:str):
         obj = cls()
-        with open(filename) as file:
+        with open(filename,encoding='utf-8') as file:
             lines = file.read().split('\n')
         for i,j in enumerate(lines):
             if not j:
@@ -100,7 +100,7 @@ class Lines2Lesson:
         for i in range(len(en)):
             self.result_lines.append('\t'.join((en[i],zh[i])))
     def save(self,filename:str):
-        with open(filename,'w') as file:
+        with open(filename,'w',encoding='utf-8') as file:
             file.write('\n'.join(self.result_lines))
 
 def interactive():
