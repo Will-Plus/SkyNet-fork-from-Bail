@@ -2,99 +2,21 @@ NUMBER_OF_WORD_IN_ONE_LINE = 15 # 一行的单词数，用于判断异常
 
 import sys,json,csv,pandas
 
-class Raw2Lines:
-    def __init__(self):
-        self.en_lines:list[list[str]] = []
-        self.zh_lines:list[list[str]] = []
-        self.line_number = 0
-    def input(self):
-        while True:
-            print('请输入下一行 >',end='')
-            sys.stdout.flush()
-            if not (line := sys.stdin.read()):
-                break
-            self.line_number += 1
-            if self.line_number % 2:    # 英文
-                self.en_lines.append(line.split())
-            else:
-                self.zh_lines.append(line.split())
-    def turn(self):
-        for i,j in enumerate(self.en_lines): # 每一行
-            for k,l in enumerate(j): # 每一个单词
-                now = ''    # 当前单词
-                for m in l: # 每一个字符
-                    if m.isdigit():
-                       continue
-                    now += m
-                j[k] = now
-            self.en_lines[i] = j
-    def remove_spaces(self):
-        for i in self.en_lines:
-            while '' in i:
-                i.remove('')
-    def check_length(self):
-        for i in self.en_lines+self.zh_lines:
-            if (length := len(i)) != NUMBER_OF_WORD_IN_ONE_LINE:
-                i.append(f'#########{length}')   # 数量错误，人工处理
-    def save(self,filename:str):
-        with open(filename,'w',encoding='utf-8') as file:
-            for i in range(int(self.line_number/2)):
-                print(json.dumps(self.en_lines[i]),file=file)
-                print(json.dumps(self.zh_lines[i],ensure_ascii=False),file=file)
-class Csv2Lines:
-    def __init__(self,csvreader):
-        self.reader = csvreader
-        self.en_lines:list[list[str]] = []
-        self.zh_lines:list[list[str]] = []
-        self.line_number = 0
+class Reader(list[list[str]]):
+    '''csv读取后的二维数组'''
+    pass
+class Lines:
+    def __init__(self,en_lines:list[list[str]],zh_lines:list[list[str]]):
+        if len(en_lines) != len(zh_lines):
+            raise ValueError('中英文长度不同，请检查后再试')
+        self.en_lines:list[list[str]] = en_lines
+        self.zh_lines:list[list[str]] = zh_lines
+        self.line_number = len(en_lines)
     @classmethod
-    def open(cls,filename:str):
-        file = open(filename,encoding='utf-8')
-        reader = csv.reader(file)
-        obj = cls(reader)
-        obj.file = file
-        return obj
-    def turn(self):
-        counter = 0 # 成功录入的行数，用于区分中文和英文
-        for i in self.reader:
-            # 去除空字符串
-            while '' in i:
-                i.remove('')
-            # 跳过空行
-            if not i:
-                continue
-            # 转存
-            if counter%2 == 0:
-                self.en_lines.append(i)
-            else:
-                self.zh_lines.append(i)
-            # 增加计数器
-            counter += 1
-        if len(self.en_lines) != len(self.zh_lines):
-            raise ValueError('中英文行数不同，请检查后再试')
-        self.line_number = len(self.en_lines)
-    def save(self,filename:str):
-        with open(filename,'w',encoding='utf-8') as file:
-            for i in range(int(self.line_number/2)):
-                print(json.dumps(self.en_lines[i]),file=file)
-                print(json.dumps(self.zh_lines[i],ensure_ascii=False),file=file)
-    def close(self):
-        if not hasattr(self,'file'):
-            raise RuntimeError('你不是以Csv2Lines.open()的方式打开的')
-        self.file.close()
-class Xlsx2Lines:
-    def __init__(self,df:pandas.DataFrame):
-        self.df = df
-        self.en_lines:list[list[str]] = []
-        self.zh_lines:list[list[str]] = []
-        self.line_number = 0
-    @classmethod
-    def open(cls,filename:str):
-        df = pandas.read_excel(filename,header=None)
-        return cls(df)
-    def turn(self):
-        df = self.df.fillna('')  # 将nan替换为为空字符串
-        reader = df.values.tolist()
+    def from_reader(cls,reader:Reader):
+        '''从reader读入'''
+        en_lines:list[list[str]] = []
+        zh_lines:list[list[str]] = []
         counter = 0 # 成功录入的行数，用于区分中文和英文
         for i in reader:
             # 去除空字符串
@@ -105,45 +27,83 @@ class Xlsx2Lines:
                 continue
             # 转存
             if counter%2 == 0:
-                self.en_lines.append(i)
+                en_lines.append(i)
             else:
-                self.zh_lines.append(i)
+                zh_lines.append(i)
             # 增加计数器
             counter += 1
-        if len(self.en_lines) != len(self.zh_lines):
-            raise ValueError('中英文行数不同，请检查后再试')
-        self.line_number = len(self.en_lines)
-    def save(self,filename:str):
-        with open(filename,'w',encoding='utf-8') as file:
-            for i in range(int(self.line_number/2)):
-                print(json.dumps(self.en_lines[i]),file=file)
-                print(json.dumps(self.zh_lines[i],ensure_ascii=False),file=file)
-class Lines2Lesson:
-    def __init__(self):
-        self.en_lines:list[list[str]] = []
-        self.zh_lines:list[list[str]] = []
-        self.result_lines:list[str] = []
+        return cls(en_lines,zh_lines)
     @classmethod
-    def from_file(cls,filename:str):
-        obj = cls()
+    def from_input(cls,filename:str):
+        '''从键盘输入，filename为暂时存储用于排错的文件名'''
+        # 初始化变量
+        en_lines:list[list[str]] = []
+        zh_lines:list[list[str]] = []
+        line_number = 0
+        # 输入
+        while True:
+            print('请输入下一行 >',end='')
+            sys.stdout.flush()
+            if not (line := sys.stdin.read()):
+                break
+            line_number += 1
+            if line_number % 2:    # 英文
+                en_lines.append(line.split())
+            else:
+                zh_lines.append(line.split())
+        # 过滤英文中的数字字符
+        for i,j in enumerate(en_lines): # 每一行
+            for k,l in enumerate(j): # 每一个单词
+                now = ''    # 当前单词
+                for m in l: # 每一个字符
+                    if m.isdigit():
+                       continue
+                    now += m
+                j[k] = now
+            en_lines[i] = j
+        # 去除空格
+        for i in en_lines:
+            while '' in i:
+                i.remove('')
+        # 检查当前行的长度
+        for i in en_lines+zh_lines:
+            if (length := len(i)) != NUMBER_OF_WORD_IN_ONE_LINE:
+                i.append(f'#########{length}')   # 数量错误，人工处理
+        with open(filename,'w',encoding='utf-8') as file:
+            for i in range(int(line_number/2)):
+                print(json.dumps(en_lines[i]),file=file)
+                print(json.dumps(zh_lines[i],ensure_ascii=False),file=file)
+        # 提示用户手动处理
+        input('请手动编辑文件，按回车键继续')
+        # 再次读取，生成对象
         with open(filename,encoding='utf-8') as file:
             lines = file.read().split('\n')
-        for i,j in enumerate(lines):
-            if not j:
-                continue
-            if i%2 == 0:
-                obj.en_lines.append(json.loads(j))
-            else:
-                obj.zh_lines.append(json.loads(j))
+        reader:Reader = []
+        for i in lines:
+            reader.append(json.loads(i))
+        return cls.from_reader(reader)
+    @classmethod
+    def from_csv(cls,filename:str):
+        '''从csv读取'''
+        file = open(filename,encoding='utf-8')
+        reader = csv.reader(file)
+        obj = cls.from_reader(reader)
+        file.close()
         return obj
-    def turn(self):
+    @classmethod
+    def from_xlsx(cls,filename:str):
+        # 读取文件
+        reader = pandas.read_excel(filename,header=None).fillna('').values.tolist()
+        # 生成对象
+        return cls.from_reader(reader)
+    def to_lesson(self,filename:str):
+        result_lines:list[str] = []
         en = [j for i in self.en_lines for j in i]
         zh = [j for i in self.zh_lines for j in i]
         if len(en) != len(zh):
             raise ValueError('中英文长度不同，请检查后再试')
         for i in range(len(en)):
-            self.result_lines.append('\t'.join((en[i],zh[i])))
-    def save(self,filename:str):
+            result_lines.append('\t'.join((en[i],zh[i])))
         with open(filename,'w',encoding='utf-8') as file:
             file.write('\n'.join(self.result_lines))
 
@@ -151,39 +111,15 @@ def interactive():
     filename = input('文件名 >')
     lines_filename = filename+'.lines'
     lesson_filename = filename+'.lesson'
-    raw2lines = Raw2Lines()
-    raw2lines.input()
-    raw2lines.turn()
-    raw2lines.remove_spaces()
-    raw2lines.check_length()
-    raw2lines.save(lines_filename)
-    input('请手动编辑文件，按回车键继续')
-    lines2lesson = Lines2Lesson.from_file(lines_filename)
-    lines2lesson.turn()
-    lines2lesson.save(lesson_filename)
+    Lines.from_input(lines_filename).to_lesson(lesson_filename)
 def fromcsv():
     filename = input('csv文件名 >')
-    lines_filename = filename+'.lines'
     lesson_filename = filename+'.lesson'
-    csv2lines = Csv2Lines.open(filename)
-    csv2lines.turn()
-    Raw2Lines.turn(csv2lines)   # 好大胆的用法
-    csv2lines.save(lines_filename)
-    csv2lines.close()
-    lines2lesson = Lines2Lesson.from_file(lines_filename)
-    lines2lesson.turn()
-    lines2lesson.save(lesson_filename)
+    Lines.from_csv(filename).to_lesson(lesson_filename)
 def fromxlsx():
     filename = input('xlsx文件名 >')
-    lines_filename = filename+'.lines'
     lesson_filename = filename+'.lesson'
-    xlsx2lines = Xlsx2Lines.open(filename)
-    xlsx2lines.turn()
-    Raw2Lines.turn(xlsx2lines)
-    xlsx2lines.save(lines_filename)
-    lines2lesson = Lines2Lesson.from_file(lines_filename)
-    lines2lesson.turn()
-    lines2lesson.save(lesson_filename)
+    Lines.from_xlsx(filename).to_lesson(lesson_filename)
 def main():
     print('''1. 交互式（复制粘贴pdf）
 2. 自动式（从csv）
@@ -199,4 +135,4 @@ def main():
             raise ValueError(f'无效的输入：{invalid_input}')
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
