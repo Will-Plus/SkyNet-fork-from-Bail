@@ -55,18 +55,27 @@ class Csv2Lines:
         obj.file = file
         return obj
     def turn(self):
-        for i,j in enumerate(self.reader):
-            if not j:
+        counter = 0 # 成功录入的行数，用于区分中文和英文
+        for i in self.reader:
+            # 去除空字符串
+            while '' in i:
+                i.remove('')
+            # 跳过空行
+            if not i:
                 continue
-            if i%2 == 0:
-                self.en_lines.append(j)
+            # 转存
+            if counter%2 == 0:
+                self.en_lines.append(i)
             else:
-                self.zh_lines.append(j)
+                self.zh_lines.append(i)
+            # 增加计数器
+            counter += 1
+        breakpoint()
         if len(self.en_lines) != len(self.zh_lines):
-            raise ValueError('中英文长度不同，请检查后再试')
+            raise ValueError('中英文行数不同，请检查后再试')
         self.line_number = len(self.en_lines)
     def save(self,filename:str):
-        with open(filename,'w') as file:
+        with open(filename,'w',encoding='utf-8') as file:
             for i in range(int(self.line_number/2)):
                 print(json.dumps(self.en_lines[i]),file=file)
                 print(json.dumps(self.zh_lines[i],ensure_ascii=False),file=file)
@@ -123,6 +132,7 @@ def fromcsv():
     lesson_filename = filename+'.lesson'
     csv2lines = Csv2Lines.open(filename)
     csv2lines.turn()
+    Raw2Lines.turn(csv2lines)   # 好大胆的用法
     csv2lines.save(lines_filename)
     csv2lines.close()
     lines2lesson = Lines2Lesson.from_file(lines_filename)
