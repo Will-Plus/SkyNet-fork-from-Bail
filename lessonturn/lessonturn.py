@@ -80,7 +80,12 @@ class Lines:
             lines = file.read().split('\n')
         reader:Reader = []
         for i in lines:
-            reader.append(json.loads(i))
+            if i:    # 防止空行引起的bug
+                try:
+                    reader.append(json.loads(i))
+                except json.decoder.JSONDecodeError:
+                    print(f'存在错误的行：{i}')
+                    raise
         return cls.from_reader(reader)
     @classmethod
     def from_csv(cls,filename:str):
@@ -105,7 +110,7 @@ class Lines:
         for i in range(len(en)):
             result_lines.append('\t'.join((en[i],zh[i])))
         with open(filename,'w',encoding='utf-8') as file:
-            file.write('\n'.join(self.result_lines))
+            file.write('\n'.join(result_lines))
 
 def interactive():
     filename = input('文件名 >')
