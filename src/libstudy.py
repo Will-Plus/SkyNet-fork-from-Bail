@@ -103,10 +103,10 @@ wlst(list):包含要学习的单词对象的列表'''
                 judgelab['text'] = '(x)'
                 sclst.append(current_word)
                 status = False
-        elif status == True:    #已判，正确：，下一个
+        elif status == True:    #已判，正确：进入下一个单词
             index += 1
             nextword()
-        elif status == False:   #已判，错误：进入抄写
+        elif status == False:   #已判，错误：进入记忆
             judgelab.config(text='')
             entry.config(state=libgui.NORMAL)
             entry.delete(0,libgui.END)
