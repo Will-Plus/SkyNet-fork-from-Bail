@@ -21,7 +21,7 @@ def pip_install():
     if '--termux' in sys.argv:  # 判定为termux安装，使用自编的playsound
         PIP_REQUIRE.remove('playsound')
     os.system(f'{sys.executable} -m pip install -i https://mirrors.aliyun.com/pypi/simple/ --break-system-packages --upgrade pip wheel setuptools')    # 更新pip组件，防止安装失败
-    os.system(f'{sys.executable} -m pip install -i https://mirrors.aliyun.com/pypi/simple/ --break-system-packages '+' '.join(PIP_REQUIRE))
+    os.system(f'{sys.executable} -m pip install -i https://mirrors.aliyun.com/pypi/simple/ --break-system-packages --upgrade '+' '.join(PIP_REQUIRE))
 def main():
 ##    if os.name == 'posix' and not isinst():
 ##        linux_install()
