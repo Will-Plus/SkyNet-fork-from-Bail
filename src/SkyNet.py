@@ -9,7 +9,6 @@
 特别鸣谢:Bail 对此项目的支持与帮助！ 对此项目的源代码支持！
 '''
 
-from tkinter import Tk
 import sys,os
 #按系统类型配置导入模块的目录
 OSNAME = None   #备选:None,deepin
@@ -31,17 +30,11 @@ def loadplugins():
         pkgname = os.path.splitext(i)[0] #去掉后缀名
         __import__(pkgname)
         print(f'I: 已加载模块: {pkgname}')
-def printe(*args,**kw):
-    '''从stderr通道输出内容
-与内置函数print用法相同'''
-    # 为了后续版本的libcli从stdout输出，故将日志输出到stderr通道
-    # 需要其他模块进行适配，将在后续版本完成
-    print(file=sys.stderr,*args,**kw)
 def main():
     init.main()
     loadplugins()
     libsc.readfile()
-    root = libgui.root()
+    root = libgui.RootWindow()
     lessonlst = libfile.getlessons()
     libgui.init(root,lessonlst)
 ##    files = libfile.getfile()

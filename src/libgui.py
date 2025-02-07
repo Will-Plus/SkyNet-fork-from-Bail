@@ -1,55 +1,108 @@
 #Copyright Bail&Will&loaf0808 2025
 #SkyNet:libgui 图形界面模块
 
+LOGLEVEL = 0
 
 from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 from _tkinter import TclError
-import libsc as sc,libfile,libclass,libstudy
+from abc import ABC
+import libsc as sc,libfile,libclass,libstudy,logging
 
-#定义一个函数，用于在root窗口中显示课程列表
-def inroot(root: Tk, lessonlst: list):
-    frame = root.lessons_frame
-    for i, lesson in enumerate(lessonlst):
-        Label(frame, text=lesson.name).grid(row=i, column=0)
-        Button(frame, text=f'记忆 {lesson.progress[0]}/{len(lesson.words)}', 
-               command=lambda arg=lesson: libstudy.remember(root, arg)).grid(row=i, column=1)
-        Button(frame, text=f'默写 {lesson.progress[2]}/{len(lesson.words)}', 
-               command=lambda arg=lesson: libstudy.write(root, arg)).grid(row=i, column=3)
-        Button(frame, text='课程信息', command=lambda arg=lesson: lesson_info(root, arg)).grid(row=i, column=4)
+class Logger(logging.Logger):
+    def __init__(self):
+        super().__init__(__name__,LOGLEVEL)
+class Window(ABC):
+    '''窗口基类'''
+    def __init__(self,logger:Logger):
+        self.logger = logger
+    def showinfo(self,title:str,msg:str):
+        '''显示提示信息
+msg(str):提示信息的内容'''
+        msgbox.showinfo(title,msg,parent=self)
+    def showwarning(self,title:str,msg:str):
+        '''显示警告信息
+msg(str):警告信息的内容'''
+        msgbox.showwarning(title,msg,parent=self)
+    def showerror(self,title:str,msg:str):
+        '''显示错误信息
+msg(str):错误信息的内容'''
+        msgbox.showerror(title,msg,parent=self)
 
-def root():
-    root = Tk()
-    root.title('SkyNet')
-    root.geometry('800x600')
-    try:
-        root.iconphoto(False,PhotoImage(file=libfile.getpath('icon')))
-    except TclError:
-        print('W: 未找到图标')
+class RootWindow(Tk,Window):
+    def __init__(self,logger:Logger):
+        Tk.__init__(self)
+        Window.__init__(self,logger)
+        self.title('SkyNet')
+        self.geometry('800x600')
+        try:
+            self.iconphoto(False,PhotoImage(file=libfile.getpath('icon')))
+        except TclError:
+            self.logger.warning('未找到图标')
 
-    lesson_choose_frame = Frame(root)
-    lesson_choose_frame.pack(anchor=NW)
-    Label(lesson_choose_frame,text='请选择课程').grid()
-    Button(lesson_choose_frame,text='添加课程',command=libfile.add_lesson).grid(row=0,column=1)
-    root.lesson_choose_frame = lesson_choose_frame
+        self.lesson_choose_frame = Frame(self)
+        self.lesson_choose_frame.pack(anchor=NW)
+        Label(self.lesson_choose_frame,text='请选择课程').grid()
+        Button(self.lesson_choose_frame,text='添加课程',command=libfile.add_lesson).grid(row=0,column=1)
 
-    sccontrol_frame = Frame(root)
-    sccontrol_frame.pack(anchor=NW)
-    Button(sccontrol_frame,text='生词管理',command=lambda:sc.control(root)).grid(row=0,column=0)
-    rem_need_review_label = Label(sccontrol_frame)
-    rem_need_review_label.grid(row=0,column=1)
-    wri_need_review_label = Label(sccontrol_frame)
-    wri_need_review_label.grid(row=0,column=3)
-    #将两个Label添加为root的属性，临时解决方案
-    root.rem_need_review_label = rem_need_review_label
-    root.wri_need_review_label = wri_need_review_label
+        self.sccontrol_frame = Frame(RootWindow)
+        self.sccontrol_frame.pack(anchor=NW)
+        Button(self.sccontrol_frame,text='生词管理',command=lambda:sc.control(RootWindow)).grid(row=0,column=0)
+        self.rem_need_review_label = Label(self.sccontrol_frame)
+        self.rem_need_review_label.grid(row=0,column=1)
+        self.wri_need_review_label = Label(self.sccontrol_frame)
+        self.wri_need_review_label.grid(row=0,column=3)
+        self.lessons_frame = Frame(RootWindow)
+        self.lessons_frame.pack(anchor=NW)
 
-    lessons_frame = Frame(root)
-    lessons_frame.pack(anchor=NW)
-    root.lessons_frame = lessons_frame  #把这个frame夹带出去，方便其他函数使用。后期将会把libgui用class重写，届时将不需要这样操作
+        Label(self,text='特别感谢：Bail 对此项目的支持与帮助&对此项目的源代码的贡献！',fg='#7f7f7f').pack(side=BOTTOM,fill=X)
 
-    Label(root,text='特别感谢：Bail 对此项目的支持与帮助&对此项目的源代码的贡献！',fg='#7f7f7f').pack(side=BOTTOM,fill=X)
-    return root
+    def show_lessons(self, lessonlst: list[libclass.Lesson]):
+        '''显示课程列表'''
+        frame = self.lessons_frame
+        for i, lesson in enumerate(lessonlst):
+            Label(frame, text=lesson.name).grid(row=i, column=0)
+            Button(frame, text=f'记忆 {lesson.progress[0]}/{len(lesson.words)}', 
+                command=lambda arg=lesson: libstudy.remember(self, arg)).grid(row=i, column=1)
+            Button(frame, text=f'默写 {lesson.progress[2]}/{len(lesson.words)}', 
+                command=lambda arg=lesson: libstudy.write(self, arg)).grid(row=i, column=3)
+            Button(frame, text='课程信息', command=lambda arg=lesson: lesson_info(self, arg)).grid(row=i, column=4)
+class RememberWindow(Toplevel,Window):
+    '''记忆模块界面'''
+    def __init__(self,root:RootWindow,logger:Logger):
+        Toplevel.__init__(self,root)
+        Window.__init__(self,logger)
+        self.title('记忆')
+
+        #放置组件
+        self.wordlab = Label(self);self.wordlab.pack()
+        self.translab = Label(self);self.translab.pack()
+        self.btnsframe = Frame(self);self.btnsframe.pack()
+        self.huibtn = Button(self.btnsframe,text='会');self.huibtn.grid(row=0,column=0)
+        self.buhuibtn = Button(self.btnsframe,text='不会');self.buhuibtn.grid(row=0,column=1)
+        self.duibtn = Button(self.btnsframe,text='对',);self.duibtn.grid(row=1,column=0)
+        self.buduibtn = Button(self.btnsframe,text='不对');self.buduibtn.grid(row=1,column=1)
+
+        #默认隐藏按钮
+        self.huibtn.grid_forget()
+        self.buhuibtn.grid_forget()
+        self.duibtn.grid_forget()
+        self.buduibtn.grid_forget()
+class WriteWindow(Toplevel,Window):
+    '''默写模块界面'''
+    def __init__(self,root:RootWindow,logger:Logger):
+        Toplevel.__init__(self,root)
+        Window.__init__(self,logger)
+        self.title('默写')
+
+        #放置组件
+        self.translab = Label(self);self.translab.pack()
+        entryframe = Frame(self);entryframe.pack()
+        self.lenlab = Label(entryframe);self.lenlab.grid(row=0,column=0)
+        self.entry = Entry(entryframe);self.entry.grid(row=0,column=1)
+        self.judgelab = Label(entryframe);self.judgelab.grid(row=0,column=2)
+        self.wordlab = Label(self);self.wordlab.pack()
+
 def count_need_review(root:Tk):
     '''统计需要复习的单词数
 root(tkinter.Tk):（包含三个Label属性的）根窗口'''
@@ -67,88 +120,39 @@ root(tkinter.Tk):（包含三个Label属性的）根窗口'''
         need = sc.get_need_review_list(eval(i))
         needn = len(need)
         eval(i+'lab').config(text=f'{sub}需复习个数:{needn}')
-def remember(root:Tk):
-    '''记忆模块界面
-root(tkinter.Tk):根窗口
-返回值：带有组件属性的记忆窗口(tkinter.Toplevel)'''
-    #窗口初始化
-    win = Toplevel(root)
-    win.title('记忆')
 
-    #放置组件
-    win.wordlab = Label(win);win.wordlab.pack()
-    win.translab = Label(win);win.translab.pack()
-    win.btnsframe = Frame(win);win.btnsframe.pack()
-    win.huibtn = Button(win.btnsframe,text='会');win.huibtn.grid(row=0,column=0)
-    win.buhuibtn = Button(win.btnsframe,text='不会');win.buhuibtn.grid(row=0,column=1)
-    win.duibtn = Button(win.btnsframe,text='对',);win.duibtn.grid(row=1,column=0)
-    win.buduibtn = Button(win.btnsframe,text='不对');win.buduibtn.grid(row=1,column=1)
+class LessonInfoWindow(Toplevel,Window):
+    '''课程信息（原为“单词本”）'''
+    def __init__(self,root:RootWindow,logger:Logger):
+        self.title('课程信息')
 
-    #默认隐藏按钮
-    win.huibtn.grid_forget()
-    win.buhuibtn.grid_forget()
-    win.duibtn.grid_forget()
-    win.buduibtn.grid_forget()
-
-    return win
-def write(root:Tk)->list:
-    '''默写模块界面
-root(tkinter.Tk):根窗口
-返回值:带有组件属性的默写窗口(tkinter.Toplevel)'''
-    #窗口初始化
-    win = Toplevel(root)
-    win.title('默写')
-
-    #放置组件
-    win.translab = Label(win);win.translab.pack()
-    entryframe = Frame(win);entryframe.pack()
-    win.lenlab = Label(entryframe);win.lenlab.grid(row=0,column=0)
-    win.entry = Entry(entryframe);win.entry.grid(row=0,column=1)
-    win.judgelab = Label(entryframe);win.judgelab.grid(row=0,column=2)
-    win.wordlab = Label(win);win.wordlab.pack()
-
-    return win
-    #现在问题:所有窗口(包括主窗口)都关闭后才会return
-def lesson_info(root:Tk,lesson:libclass.Lesson):
-    '''课程信息（原为“单词本”）
-root(tkinter.Tk):根窗口
-lesson(libclass.Lesson):课程'''
-    book = Toplevel(root)
-    book.title('课程信息')
-
-    #基本信息
-    Label(book,text=f'课程名称：{lesson.name}').pack(anchor=NW)
-    Label(book,text=f'课程全称：{lesson.fullname}').pack(anchor=NW)
-    Label(book,text=f'作者：{lesson.author}').pack(anchor=NW)
-
-    #单词表
-    tree = ttk.Treeview(book,columns=('词义'));tree.pack()
-    for i in lesson.words:
-        tree.insert('','end',text=i.word,values=(i.trans))
+        #基本信息
+        self.nameLabel = Label(self)
+        self.nameLabel.pack(anchor=NW)
+        self.fullNameLabel = Label(self)
+        self.fullNameLabel.pack(anchor=NW)
+        self.authorLabel = Label(self)
+        self.authorLabel.pack(anchor=NW)
+        #单词表
+        self.tree = ttk.Treeview(self,columns=('词义'))
+        self.tree.pack()
+    
+    def set_name(self,name:str):
+        self.nameLabel.config(text=f'课程名称：{name}')
+    def set_fullname(self,fullname:str):
+        self.fullNameLabel.config(text=f'课程全称：{fullname}')
+    def set_author(self,author:str):
+        self.authorLabel.config(text=f'作者：{author}')
+    def insert_words(self,wordlist:str):
+        for i in wordlist:
+            self.tree.insert('','end',text=i.word,values=(i.trans))
 
 def show_notice(root:Tk,notice:str):
     msgbox.showinfo('公告',notice,parent=root)
-def showinfo(msg:str,parent=None):
-    '''显示提示信息
-msg(str):提示信息的内容
-parent(tkinter的窗口对象,包含Tk和Toplevel等):提示信息附属的窗口'''
-    msgbox.showinfo('提示',msg,parent=parent)
-def showwarning(msg:str,parent=None):
-    '''显示警告信息
-msg(str):警告信息的内容
-parent(tkinter的窗口对象,包含Tk和Toplevel等):警告信息附属的窗口'''
-    msgbox.showwarning('警告',msg,parent=parent)
-    print(f'W: {msg}')
-def showerror(msg:str,parent=None):
-    '''显示错误信息
-msg(str):错误信息的内容
-parent(tkinter的窗口对象,包含Tk和Toplevel等):错误信息附属的窗口'''
-    msgbox.showerror('错误',msg,parent=parent)
-    print(f'E: {msg}')
-def init(root:Tk,lessonlst:list):
+def init(root:RootWindow,lessonlst:list):
     '''初始化界面
 root(tkinter.Tk):根窗口
 lessonlst(list):课程对象列表'''
     #初始化课程列表
-    inroot(root,lessonlst)
+    root.show_lessons(root,lessonlst)
     count_need_review(root)
