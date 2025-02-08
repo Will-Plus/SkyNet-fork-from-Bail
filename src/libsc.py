@@ -36,6 +36,7 @@ def gui_main(root:Tk):
 root(Tk):bss根窗口'''
     scmain = Toplevel(root)
     scmain.title('生词管理')
+    scmain.geometry('1216x576')
 
     #记忆模块生词
     screm = LabelFrame(scmain,text='记忆模块');screm.pack()

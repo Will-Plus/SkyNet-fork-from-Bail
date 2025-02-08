@@ -117,7 +117,7 @@ root(tkinter.Tk):根窗口
 lesson(libclass.Lesson):课程'''
     book = Toplevel(root)
     book.title('课程信息')
-
+    book.geometry('415x310')
 
     #基本信息
     Label(book,text=f'课程名称：{lesson.name}').pack(anchor=NW)
