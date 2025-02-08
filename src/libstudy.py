@@ -2,16 +2,23 @@
 #SkyNet:libstudy 学习模块
 
 from abc import ABC,abstractmethod
-import libgui,libunf,libclass
+import libgui,libunf,libclass,copy
 
 class StudyModule(ABC):
     @abstractmethod
-    def __call__(self)->tuple[list[libclass.Word],list[libclass.Word]]:
-        '''进行课程的学习
+    def __call__(self):
+        '''进行课程的学习'''
+    def close(self)->tuple[list[libclass.Word],list[libclass.Word]]:
+        '''关闭窗口时的回调
 返回值：生词和熟词各自的列表'''
 
 class Remember(StudyModule):
     '''记忆模块'''
+    unflist:list[libclass.Word] = []   # 生词列表
+    famlist:list[libclass.Word] = []   # 熟词列表
+    index:int = 0                      # 当前单词的索引
+    current_word:libclass.Word = None  # 当前学习的单词
+
     def __init__(self,
             window:libgui.RememberWindow,   # 根窗口
             lesson:libclass.Lesson,         # 要学习的课程对象
@@ -20,69 +27,38 @@ class Remember(StudyModule):
         self.window = window
         self.lesson = lesson
         self.unfHandler = unfHandler
-        self.unflist:list[libclass.Word] = []   # 生词列表
-        self.famlist:list[libclass.Word] = []   # 熟词列表
-    def hui4(): #会，进入看对错
-        translab.config(text=current_word.trans)
-        huibtn.grid_forget()
-        buhuibtn.grid_forget()
-        duibtn.grid(row=1,column=0)
-        buduibtn.grid(row=1,column=1)
-    def dui4(): #对，标为熟词并进入下一个单词
-        nonlocal index
-        huilst.append(current_word)
-        index += 1
-        nextword()
-    def bu4():  #不会/不对，标为生词并进入下一个单词
-        nonlocal index
-        sclst.append(current_word)
-        translab.config(text=current_word.trans)
-        index += 1
-        nextword()
-    def nextword():
-        nonlocal index  #防止下一行的判断出现bug
-        if index == len(wlst):  #如果是最后一个单词
-            libgui.showinfo(f'恭喜你学完({lesson.fullname})',parent=win)
-            close()
+        self.wlst = copy.copy(self.lesson.words)
+    def hui4(self): #会，进入看对错
+        self.window.check_right(self.current_word)
+    def dui4(self): #对，标为熟词并进入下一个单词
+        self.famlist.append(self.current_word)
+        self.index += 1
+        self.nextword()
+    def bu4(self):  #不会/不对，标为生词并进入下一个单词
+        self.unflist.append(self.current_word)
+        self.index += 1
+        self.nextword()
+    def nextword(self):
+        if self.index == len(self.wlst):  #如果是最后一个单词
+            self.window.showinfo('提示',f'恭喜你学完({self.lesson.fullname})')
+            self.close()
         else:
-            #隐藏按钮
-            duibtn.grid_forget()
-            buduibtn.grid_forget()
-            translab.config(text='')
-
-            #初始化变量
-            nonlocal current_word   #index上面已经声明
-            current_word = wlst[index]
-
-            #显示
-            win.title(f'记忆 {index+1}/{len(wlst)}')
-            wordlab.config(text=current_word.word)
-            huibtn.grid(row=0,column=0)
-            buhuibtn.grid(row=0,column=1)
-    def close():
-        libsc.mark('remember',sclst,huilst)
-        lesson.progress[0] = index
-        win.destroy()
+            self.current_word = self.wlst[self.index]
+            self.window.title(f'记忆 {self.index+1}/{len(self.wlst)}')
+            self.window.show_word(self.current_word)
+    def close(self):
+        self.unfHandler.mark('remember',self.unflist,self.famlist)
+        self.lesson.progress[0] = self.index
+        self.window.destroy()
     def __call__(self):
-        #初始化各种变量
-        wlst = lesson.words #单词列表
-        index = lesson.progress[0]  #当前学习的单词在单词列表中的索引
-        sclst = []          #生词列表
-        huilst = []         #熟词列表
-        current_word:libclass.Word = None   #当前学习的单词
-
         #初始化界面
-        win = self.window
-        win.protocol('WM_DELETE_WINDOW',close)
-        wordlab,translab,huibtn,buhuibtn,duibtn,buduibtn = win.wordlab,win.translab,win.huibtn,win.buhuibtn,win.duibtn,win.buduibtn
-        huibtn.config(command=hui4)
-        buhuibtn.config(command=bu4)
-        duibtn.config(command=dui4)
-        buduibtn.config(command=bu4)
-        #recitebtn的command在recite函数里指定
-
+        self.window.protocol('WM_DELETE_WINDOW',self.close)
+        self.window.huibtn.config(command=self.hui4)
+        self.window.buhuibtn.config(command=self.bu4)
+        self.window.duibtn.config(command=self.dui4)
+        self.window.buduibtn.config(command=self.bu4)
         #显示第一个单词
-        nextword()
+        self.nextword()
 def write(root:libgui.Tk,lesson:libclass.Lesson):
     '''默写模块
 root(tkinter.Tk):根窗口
@@ -132,7 +108,7 @@ wlst(list):包含要学习的单词对象的列表'''
             translab.config(text=current_word.trans)
             wordlab.config(text='')
     def close():
-        libsc.mark('write',sclst,huilst)
+        libunf.mark('write',sclst,huilst)
         lesson.progress[2] = index
         win.destroy()
 

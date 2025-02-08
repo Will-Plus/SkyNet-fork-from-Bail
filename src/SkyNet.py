@@ -20,7 +20,7 @@ elif OSNAME in ('posix',):
 else:
     raise EnvironmentError('系统不支持')
 sys.path.append(import_path)
-import libgui,libfile,libsc,init
+import libgui,libfile,libunf,init
 
 def loadplugins():
     '''加载模块'''
@@ -33,14 +33,14 @@ def loadplugins():
 def main():
     init.main()
     loadplugins()
-    libsc.readfile()
+    libunf.readfile()
     root = libgui.RootWindow()
     lessonlst = libfile.getlessons()
     libgui.init(root,lessonlst)
 ##    files = libfile.getfile()
 ##    libgui.inroot(root,files)
     root.mainloop()
-    libsc.savefile()
+    libunf.savefile()
     libfile.saveprogress(lessonlst)
     return 0
 

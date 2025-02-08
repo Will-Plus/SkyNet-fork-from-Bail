@@ -5,7 +5,7 @@ from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 from _tkinter import TclError
 from abc import ABC
-import libsc as sc,libfile,libclass,libstudy,logging
+import libunf,libfile,libclass,libstudy
 
 class Window(ABC):
     '''窗口基类'''
@@ -42,7 +42,7 @@ class RootWindow(Tk,Window):
 
         self.sccontrol_frame = Frame(RootWindow)
         self.sccontrol_frame.pack(anchor=NW)
-        Button(self.sccontrol_frame,text='生词管理',command=lambda:sc.control(self)).grid(row=0,column=0)
+        Button(self.sccontrol_frame,text='生词管理',command=lambda:libunf.control(self)).grid(row=0,column=0)
         self.rem_need_review_label = Label(self.sccontrol_frame)
         self.rem_need_review_label.grid(row=0,column=1)
         self.wri_need_review_label = Label(self.sccontrol_frame)
@@ -67,22 +67,30 @@ class RememberWindow(Toplevel,Window):
     def __init__(self,root:RootWindow,logger:libclass.Logger):
         Toplevel.__init__(self,root)
         Window.__init__(self,logger)
+        self.logger = logger
         self.title('记忆')
 
         #放置组件
         self.wordlab = Label(self);self.wordlab.pack()
         self.translab = Label(self);self.translab.pack()
         self.btnsframe = Frame(self);self.btnsframe.pack()
-        self.huibtn = Button(self.btnsframe,text='会');self.huibtn.grid(row=0,column=0)
-        self.buhuibtn = Button(self.btnsframe,text='不会');self.buhuibtn.grid(row=0,column=1)
-        self.duibtn = Button(self.btnsframe,text='对',);self.duibtn.grid(row=1,column=0)
-        self.buduibtn = Button(self.btnsframe,text='不对');self.buduibtn.grid(row=1,column=1)
-
-        #默认隐藏按钮
-        self.huibtn.grid_forget()
-        self.buhuibtn.grid_forget()
-        self.duibtn.grid_forget()
-        self.buduibtn.grid_forget()
+        self.huibtn = Button(self.btnsframe,text='会')
+        self.buhuibtn = Button(self.btnsframe,text='不会')
+        self.duibtn = Button(self.btnsframe,text='对',)
+        self.buduibtn = Button(self.btnsframe,text='不对')
+    def show_word(self,word:libclass.Word):
+        self.wordlab.config(text=word.word)
+        self.translab.config(text='')
+        for i in (self.duibtn,self.buduibtn):
+            i.grid_forget()
+        for i,j in enumerate((self.huibtn,self.buhuibtn)):
+            j.grid(row=0,column=i)
+    def check_right(self,word:libclass.Word):
+        self.translab.config(text=word.trans)
+        for i in (self.huibtn,self.buhuibtn):
+            i.grid_forget()
+        for i,j in enumerate((self.duibtn,self.buduibtn)):
+            j.grid(row=1,column=i)
 class WriteWindow(Toplevel,Window):
     '''默写模块界面'''
     def __init__(self,root:RootWindow,logger:libclass.Logger):
@@ -103,8 +111,8 @@ def count_need_review(root:Tk):
 root(tkinter.Tk):（包含三个Label属性的）根窗口'''
     remlab = root.rem_need_review_label
     wrilab = root.wri_need_review_label
-    rem = sc.remlst
-    wri = sc.wrilst
+    rem = libunf.remlst
+    wri = libunf.wrilst
 
     for i in ('rem','wri'):
         if i == 'rem':
@@ -112,7 +120,7 @@ root(tkinter.Tk):（包含三个Label属性的）根窗口'''
         elif i == 'wri':
             sub = '默写'
 
-        need = sc.get_need_review_list(eval(i))
+        need = libunf.get_need_review_list(eval(i))
         needn = len(need)
         eval(i+'lab').config(text=f'{sub}需复习个数:{needn}')
 

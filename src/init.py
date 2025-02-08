@@ -1,7 +1,7 @@
 #Copyright Bail&Will&loaf0808 
 #SkyNet:init 程序初始化
 
-import sys,os,libsc,libfile
+import sys,os,libunf,libfile
 
 def create(type:str,path:str):
     '''创建
