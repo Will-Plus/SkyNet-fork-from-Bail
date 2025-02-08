@@ -1,9 +1,12 @@
 #Copyright Bail&Will&loaf0808 2025
 #SkyNet:libwordclass 单词类模块
 
+LOGLEVEL = 0
+
 Word = Sc = Lesson = None   #先定义一下，防止循环依赖时报错AttributeError
                             #这个问题在d48ccdb2d22ddd2672e17d05bb1bf7d659c6c5e4已经出现，暂无更好解决方案
 
+import logging
 
 class Word:
     '''单词类'''
@@ -65,3 +68,7 @@ class WrongFileVersion(Exception):
         self.e = e
     def __str__(self) -> str:
         return self.e
+
+class Logger(logging.Logger):
+    def __init__(self):
+        super().__init__(__name__,LOGLEVEL)

@@ -1,28 +1,27 @@
 #Copyright Bail&Will&loaf0808 2025
 #SkyNet:libstudy 学习模块
 
-#导入模块
-# import os
+from abc import ABC,abstractmethod
+import libgui,libunf,libclass
 
-# def congratulate(filename):
-#     print(f"恭喜你学完({filename})")
+class StudyModule(ABC):
+    @abstractmethod
+    def __call__(self)->tuple[list[libclass.Word],list[libclass.Word]]:
+        '''进行课程的学习
+返回值：生词和熟词各自的列表'''
 
-# file_path = "SkyNet"
-
-# if os.path.isfile(file_path):
-#     # 提取文件名
-#     file_name = os.path.basename(file_path)
-#     congratulate(file_name)
-# else:
-#     print("文件不存在，请检查文件名。")
-
-
-import libgui,libsc,libclass
-
-def remember(root:libgui.Tk,lesson:libclass.Lesson):
-    '''记忆模块
-root(tkinter.Tk):根窗口
-wlst(list):包含要学习的单词对象的列表'''
+class Remember(StudyModule):
+    '''记忆模块'''
+    def __init__(self,
+            window:libgui.RememberWindow,   # 根窗口
+            lesson:libclass.Lesson,         # 要学习的课程对象
+            unfHandler:libunf.UnfamiliarWordHandler  # 生词处理器对象
+        ):
+        self.window = window
+        self.lesson = lesson
+        self.unfHandler = unfHandler
+        self.unflist:list[libclass.Word] = []   # 生词列表
+        self.famlist:list[libclass.Word] = []   # 熟词列表
     def hui4(): #会，进入看对错
         translab.config(text=current_word.trans)
         huibtn.grid_forget()
@@ -64,26 +63,26 @@ wlst(list):包含要学习的单词对象的列表'''
         libsc.mark('remember',sclst,huilst)
         lesson.progress[0] = index
         win.destroy()
+    def __call__(self):
+        #初始化各种变量
+        wlst = lesson.words #单词列表
+        index = lesson.progress[0]  #当前学习的单词在单词列表中的索引
+        sclst = []          #生词列表
+        huilst = []         #熟词列表
+        current_word:libclass.Word = None   #当前学习的单词
 
-    #初始化各种变量
-    wlst = lesson.words #单词列表
-    index = lesson.progress[0]  #当前学习的单词在单词列表中的索引
-    sclst = []          #生词列表
-    huilst = []         #熟词列表
-    current_word:libclass.Word = None   #当前学习的单词
+        #初始化界面
+        win = self.window
+        win.protocol('WM_DELETE_WINDOW',close)
+        wordlab,translab,huibtn,buhuibtn,duibtn,buduibtn = win.wordlab,win.translab,win.huibtn,win.buhuibtn,win.duibtn,win.buduibtn
+        huibtn.config(command=hui4)
+        buhuibtn.config(command=bu4)
+        duibtn.config(command=dui4)
+        buduibtn.config(command=bu4)
+        #recitebtn的command在recite函数里指定
 
-    #初始化界面
-    win = libgui.remember(root)
-    win.protocol('WM_DELETE_WINDOW',close)
-    wordlab,translab,huibtn,buhuibtn,duibtn,buduibtn = win.wordlab,win.translab,win.huibtn,win.buhuibtn,win.duibtn,win.buduibtn
-    huibtn.config(command=hui4)
-    buhuibtn.config(command=bu4)
-    duibtn.config(command=dui4)
-    buduibtn.config(command=bu4)
-    #recitebtn的command在recite函数里指定
-
-    #显示第一个单词
-    nextword()
+        #显示第一个单词
+        nextword()
 def write(root:libgui.Tk,lesson:libclass.Lesson):
     '''默写模块
 root(tkinter.Tk):根窗口

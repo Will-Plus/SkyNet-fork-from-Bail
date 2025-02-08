@@ -1,20 +1,15 @@
 #Copyright Bail&Will&loaf0808 2025
 #SkyNet:libgui 图形界面模块
 
-LOGLEVEL = 0
-
 from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 from _tkinter import TclError
 from abc import ABC
 import libsc as sc,libfile,libclass,libstudy,logging
 
-class Logger(logging.Logger):
-    def __init__(self):
-        super().__init__(__name__,LOGLEVEL)
 class Window(ABC):
     '''窗口基类'''
-    def __init__(self,logger:Logger):
+    def __init__(self,logger:libclass.Logger):
         self.logger = logger
     def showinfo(self,title:str,msg:str):
         '''显示提示信息
@@ -30,7 +25,7 @@ msg(str):错误信息的内容'''
         msgbox.showerror(title,msg,parent=self)
 
 class RootWindow(Tk,Window):
-    def __init__(self,logger:Logger):
+    def __init__(self,logger:libclass.Logger):
         Tk.__init__(self)
         Window.__init__(self,logger)
         self.title('SkyNet')
@@ -47,7 +42,7 @@ class RootWindow(Tk,Window):
 
         self.sccontrol_frame = Frame(RootWindow)
         self.sccontrol_frame.pack(anchor=NW)
-        Button(self.sccontrol_frame,text='生词管理',command=lambda:sc.control(RootWindow)).grid(row=0,column=0)
+        Button(self.sccontrol_frame,text='生词管理',command=lambda:sc.control(self)).grid(row=0,column=0)
         self.rem_need_review_label = Label(self.sccontrol_frame)
         self.rem_need_review_label.grid(row=0,column=1)
         self.wri_need_review_label = Label(self.sccontrol_frame)
@@ -69,7 +64,7 @@ class RootWindow(Tk,Window):
             Button(frame, text='课程信息', command=lambda arg=lesson: lesson_info(self, arg)).grid(row=i, column=4)
 class RememberWindow(Toplevel,Window):
     '''记忆模块界面'''
-    def __init__(self,root:RootWindow,logger:Logger):
+    def __init__(self,root:RootWindow,logger:libclass.Logger):
         Toplevel.__init__(self,root)
         Window.__init__(self,logger)
         self.title('记忆')
@@ -90,7 +85,7 @@ class RememberWindow(Toplevel,Window):
         self.buduibtn.grid_forget()
 class WriteWindow(Toplevel,Window):
     '''默写模块界面'''
-    def __init__(self,root:RootWindow,logger:Logger):
+    def __init__(self,root:RootWindow,logger:libclass.Logger):
         Toplevel.__init__(self,root)
         Window.__init__(self,logger)
         self.title('默写')
@@ -123,7 +118,7 @@ root(tkinter.Tk):（包含三个Label属性的）根窗口'''
 
 class LessonInfoWindow(Toplevel,Window):
     '''课程信息（原为“单词本”）'''
-    def __init__(self,root:RootWindow,logger:Logger):
+    def __init__(self,root:RootWindow,logger:libclass.Logger):
         self.title('课程信息')
 
         #基本信息

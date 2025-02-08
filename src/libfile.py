@@ -2,9 +2,9 @@
 #SkyNet:libfile 文件处理模块
 
 from tkinter import filedialog  #将在后期替换为libgui.filedialog，为了代码整洁
-import os,libclass,csv,shutil,libgui,SkyNet,json,hashlib,traceback
+import os,libclass,csv,shutil,libgui,__main__,json,hashlib,traceback
 
-OSNAME = SkyNet.OSNAME
+OSNAME = __main__.OSNAME
 LESSON_FILE_HEADER = 'SkyNet file\n' #课程文件头
 FILE_VERSION = 4    #当前课程文件版本
 

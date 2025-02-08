@@ -1,3 +1,4 @@
+raise NotImplementedError('该模块已废弃，等待重构')
 #Copyright Bail 2023
 #bssenglish:libnotice 公告模块
 

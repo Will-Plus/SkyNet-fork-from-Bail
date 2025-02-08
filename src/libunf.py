@@ -1,10 +1,14 @@
 #Copyright Bail&Will&loaf0808 2025
-#SkyNet:libsc 生词模块
+#SkyNet:libunf 生词模块
+
+'''"unf"是“Unfamiliar Word”（生词）的缩写（为了避免和ufw撞名）
+响应地，“fam”是“Familiar Word”(熟词)的缩写'''
 
 from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 import time,libclass,os,libfile,libgui,libstudy,random
 
+class UnfamiliarWordHandler:pass
 remlst = [];wrilst = []
 
 def imp(lst:list):
