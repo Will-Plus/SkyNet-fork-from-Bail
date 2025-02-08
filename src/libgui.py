@@ -105,6 +105,22 @@ class WriteWindow(Toplevel,Window):
         self.entry = Entry(entryframe);self.entry.grid(row=0,column=1)
         self.judgelab = Label(entryframe);self.judgelab.grid(row=0,column=2)
         self.wordlab = Label(self);self.wordlab.pack()
+    def show_trans(self,word:libclass.Word):
+        '''显示词义'''
+        self.judgelab.config(text='')
+        self.wordlab.config(text='')
+        self.translab.config(text = word.trans)
+        self.lenlab.config(text=f'{len(word.word)}){word.word[0]}')
+        self.entry.config(state=NORMAL)
+        self.entry.delete(0,END)
+    def show_word(self,word:libclass.Word):
+        '''显示单词'''
+        self.entry.config(state=DISABLED)
+        self.wordlab.config(text=word.word)
+    def show_judge(self,judge_result:bool):
+        '''显示判题结果'''
+        sign = {True:'(v)',False:'(x)'}[judge_result]
+        self.judgelab.config(text=sign)
 
 def count_need_review(root:Tk):
     '''统计需要复习的单词数
