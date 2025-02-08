@@ -74,6 +74,7 @@ root(tkinter.Tk):根窗口
     #窗口初始化
     win = Toplevel(root)
     win.title('记忆')
+    win.geometry('300x96')
 
     #放置组件
     win.wordlab = Label(win);win.wordlab.pack()
@@ -98,6 +99,7 @@ root(tkinter.Tk):根窗口
     #窗口初始化
     win = Toplevel(root)
     win.title('默写')
+    win.geometry('300x81')
 
     #放置组件
     win.translab = Label(win);win.translab.pack()
@@ -115,6 +117,7 @@ root(tkinter.Tk):根窗口
 lesson(libclass.Lesson):课程'''
     book = Toplevel(root)
     book.title('课程信息')
+
 
     #基本信息
     Label(book,text=f'课程名称：{lesson.name}').pack(anchor=NW)
