@@ -37,7 +37,6 @@ wlst(list):包含要学习的单词对象的列表'''
     def bu4():  #不会/不对，标为生词并进入下一个单词
         nonlocal index
         sclst.append(current_word)
-        translab.config(text=current_word.trans)
         index += 1
         nextword()
     def nextword():
