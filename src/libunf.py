@@ -8,8 +8,40 @@ from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 import time,libclass,os,libfile,libgui,libstudy,random
 
-class UnfamiliarWordHandler:pass
-remlst = [];wrilst = []
+class UnfamiliarWord(libclass.Word):
+    '''生词类 继承于:单词类'''
+##    learn = wrong = 1	#学习1次，错误1次
+    def __init__(self,word:str,trans:str,learn:int,wrong:int,review:int):
+        '''生词类初始化
+word(str):单词
+trans(str):词义
+review(int※不可为float):复习时间戳'''
+        self.word = word
+        self.trans = trans
+        self.learn = int(learn)
+        self.wrong = int(wrong)
+        self.review = int(review)
+    def strenth(self):
+        '''用于计算记忆强度
+word(Sc):生词对象
+返回值:记忆强度(float:.2f)'''
+        return round((self.learn - self.wrong)/self.learn,2)
+    def items(self):
+        return [self.word,self.trans,
+                self.learn,self.wrong,self.review]
+    def calculate_review_time(self)->str:
+        '''计算到该单词复习时刻的时间'''
+        if self.review <= time.time():
+            return '0'
+        sec = self.review-time.time()
+        day,sec = divmod(sec,86400)
+        hour,sec = divmod(sec,3600)
+        minute,sec = divmod(sec,60)
+        return f'{day}天{hour}时{minute}分{sec}秒'
+
+class UnfamiliarWordHandler:
+    def __init__(self,logger:libclass.Logger):
+        self.logger = logger
 
 def imp(lst:list):
     '''从外部csv导入生词'''
@@ -26,7 +58,7 @@ def readfile():
         lst = eval(f'{i}lst')
         fn = os.path.join(libfile.getpath('sc'),f'{i}.csv')
         lst0 = libfile.readfromcsv(fn)
-        lst += [libclass.Sc(*i) for i in lst0]
+        lst += [libclass.UnfamiliarWord(*i) for i in lst0]
 def treesort(tree:ttk.Treeview,col:str,reverse:bool):
     print(tree.get_children(''))
     l = [tree.set((k,col),k) for k in tree.get_children('')]
@@ -35,60 +67,6 @@ def treesort(tree:ttk.Treeview,col:str,reverse:bool):
         tree.move(k,'',i)
         print(k)
     tree.heading(col,command=lambda:treesort(tree,col,True))
-def gui_main(root:Tk):
-    '''主窗口
-root(Tk):bss根窗口'''
-    scmain = Toplevel(root)
-    scmain.title('生词管理')
-
-    #记忆模块生词
-    screm = LabelFrame(scmain,text='记忆模块');screm.pack()
-    rembtns = Frame(screm);rembtns.pack()
-    Button(rembtns,text='立即复习',command=lambda:review(scmain,'remember')).grid()
-##    Button(rembtns,text='导入',command=lambda:imp(remlst)).grid(row=0,column=1)
-##    Button(rembtns,text='导出',command=lambda:exp(remlst)).grid(row=0,column=2)
-    remtree = ttk.Treeview(screm,columns=('词义','学习次数','错误次数','记忆强度','复习时间'));remtree.pack()
-
-    remtree.heading('词义',text='词义',command=lambda:treesort(remtree,'词义',False))
-    remtree.heading('学习次数',text='学习次数',command=lambda:treesort(remtree,'学习次数',False))
-    remtree.heading('错误次数',text='错误次数',command=lambda:treesort(remtree,'错误次数',False))
-    remtree.heading('记忆强度',text='记忆强度',command=lambda:treesort(remtree,'记忆强度',False))
-    remtree.heading('复习时间',text='复习时间',command=lambda:treesort(remtree,'复习时间',False))
-
-
-    #默写模块生词
-    scwri = LabelFrame(scmain,text='默写模块');scwri.pack()
-    wribtns = Frame(scwri);wribtns.pack()
-    Button(wribtns,text='立即复习',command=lambda:review(scmain,'write')).grid()
-##    Button(wribtns,text='导入',command=lambda:imp(wrilst)).grid(row=0,column=1)
-##    Button(wribtns,text='导出',command=lambda:exp(wrilst)).grid(row=0,column=2)
-    writree = ttk.Treeview(scwri,columns=('词义','学习次数','错误次数','记忆强度','复习时间'));writree.pack()
-
-    writree.heading('词义',text='词义',command=lambda:treesort(writree,'音标',False))
-    writree.heading('学习次数',text='学习次数',command=lambda:treesort(writree,'音标',False))
-    writree.heading('错误次数',text='错误次数',command=lambda:treesort(writree,'音标',False))
-    writree.heading('记忆强度',text='记忆强度',command=lambda:treesort(writree,'音标',False))
-    writree.heading('复习时间',text='复习时间',command=lambda:treesort(writree,'音标',False))
-
-    return (scmain,remtree,writree)
-def reviewtime(obj:libclass.Sc):
-    '''计算到该单词复习时刻的时间
-obj(libclass.Sc):生词对象'''
-    if obj.review <= time.time():
-        return '0'
-    sec = obj.review-time.time()
-    timeobj = time.localtime(sec)
-    timelst = time.strftime('%m,%d,%H,%M,%S',timeobj).split(',')
-
-    #to solve problem `Jan 1'
-    timelst[0] = str(int(timelst[0])-1)
-    timelst[1] = str(int(timelst[1])-1)
-
-    #解决“8时”时差（※其他系统可能会-8h或报错）
-    timelst[2] = str(int(timelst[2])-8)
-
-    times = '{}月{}天{}时{}分{}秒'.format(*timelst)
-    return times
 def intree(remtree:ttk.Treeview,writree:ttk.Treeview):
 ##    rem,lis,wri = remlst,lislst,wrilst
     for i in remlst:
@@ -105,39 +83,7 @@ def intree(remtree:ttk.Treeview,writree:ttk.Treeview):
                                i.learn,i.wrong,	#学习次数，错误次数
                                i.strenth(),	#记忆强度
                                reviewtime(i)))	#复习时间
-"""def deltatime(word:Sc):
-    '''计算复习延后秒数
-word(Sc):生词对象
-返回值:距下次复习秒数(int)'''
-    strenth = word.strenth()*100
-    x = int(('%.2f' % strenth)[-1])
-    if x == 0:
-        x = 10
-    if strenth == 0:
-        return 0
-    elif 0 < strenth <= 10:
-        return 100*x
-    elif 10 < strenth <= 20:
-        return 200*x+1000
-    elif 20 < strenth <= 30:
-        return 300*x+3000
-    elif 30 < strenth <= 40:
-        return 2*(400*x+6000)
-    elif 40 < strenth <= 50:
-        return 2*(500*x+10000)
-    elif 50 < strenth <= 60:
-        return 2*(600*x+15000)
-    elif 60 < strenth <= 70:
-        return 4*(700*x+21000)
-    elif 70 < strenth <= 80:
-        return 4*(800*x+30000)
-    elif 80 < strenth <= 90:
-        return 8*(900*x+60000)
-    elif 90 < strenth <= 100:
-        return 8*(100*x+100000)
-    else:
-        raise ValueError('值超出范围')"""
-def deltatime(word:libclass.Sc)->int:
+def deltatime(word:UnfamiliarWord)->int:
     '''计算复习延后秒数
 word(libclass.Sc):生词对象
 返回值:距下次复习秒数(int)'''
@@ -194,7 +140,7 @@ huilst(list):熟词列表'''
                 j.review = int(time.time()+deltatime(j))
                 break
         else:   #如果生词不存在
-            sc = libclass.Sc(i.word,i.trans,1,1,int(time.time()))
+            sc = libclass.UnfamiliarWord(i.word,i.trans,1,1,int(time.time()))
             data.append(sc)
 
     #处理熟词

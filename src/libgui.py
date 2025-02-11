@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter import messagebox as msgbox,ttk
 from _tkinter import TclError
 from abc import ABC
+from __future__ import annotations
 import libunf,libfile,libclass,libstudy
 
 class Window(ABC):
@@ -121,6 +122,56 @@ class WriteWindow(Toplevel,Window):
         '''显示判题结果'''
         sign = {True:'(v)',False:'(x)'}[judge_result]
         self.judgelab.config(text=sign)
+
+class UnfWindow(Toplevel,Window):
+    '''生词管理界面'''
+    frames: list[UnfFrame]
+    def __init__(self,root:RootWindow,logger:libclass.Logger):
+        Toplevel.__init__(self,root)
+        Window.__init__(self,logger)
+        self.title('生词管理')
+class UnfFrame(LabelFrame):
+    '''生词模块界面中各学习模块的框架'''
+    # 扩展出一个类来，是因为要自定义属性，不然IDE不认识自定义属性
+    def __init__(self,title:str,unfWindow:UnfWindow):
+        super().__init__(unfWindow,text=title)
+
+        self.btnsFrame = Frame(self)
+        self.reviewBtn = Button(self.btnsFrame,text='立即复习',command=lambda:review(self,'remember'))
+        self.reviewBtn.grid()
+
+        self.tree = ttk.Treeview(self,columns=('词义','学习次数','错误次数','记忆强度','复习时间'))
+        self.tree.heading('词义',text='词义',command=lambda:treesort(self,'词义',False))
+        self.tree.heading('学习次数',text='学习次数',command=lambda:treesort(self,'学习次数',False))
+        self.tree.heading('错误次数',text='错误次数',command=lambda:treesort(self,'错误次数',False))
+        self.tree.heading('记忆强度',text='记忆强度',command=lambda:treesort(self,'记忆强度',False))
+        self.tree.heading('复习时间',text='复习时间',command=lambda:treesort(self,'复习时间',False))
+
+        self.btnsFrame.pack()
+        self.tree.pack()
+    def intree(self,unflist:list[libunf.UnfamiliarWord]):
+##    rem,lis,wri = remlst,lislst,wrilst
+        for i in unflist:
+            self.insert('','end',
+                        text=i.word,	                    #单词
+                        values=(i.trans,	                #词义
+                                i.learn,i.wrong,	        #学习次数，错误次数
+                                i.strenth(),	            #记忆强度
+                                i.calculate_review_time()))	#复习时间
+
+def unf_window_factory(root:RootWindow,moduleIds:tuple[str],logger:libclass.Logger)->UnfWindow:
+    '''生词管理窗口工厂
+moduleIds(tuple[str]):已有的学习模块id元组
+--------------
+学习模块id在libstudy'''
+    window = UnfWindow(root,logger)
+    frames:list[UnfFrame] = []
+    for i in moduleIds:
+        frame = UnfFrame(i,window)
+        frame.pack()
+        frames.append(frame)
+    window.frames = frames
+    return window
 
 def count_need_review(root:Tk):
     '''统计需要复习的单词数

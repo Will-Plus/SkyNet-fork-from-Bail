@@ -3,7 +3,7 @@
 
 LOGLEVEL = 0
 
-Word = Sc = Lesson = None   #先定义一下，防止循环依赖时报错AttributeError
+Word = Lesson = None   #先定义一下，防止循环依赖时报错AttributeError
                             #这个问题在d48ccdb2d22ddd2672e17d05bb1bf7d659c6c5e4已经出现，暂无更好解决方案
 
 import logging
@@ -20,27 +20,6 @@ class Word:
             return True
         else:
             return False
-class Sc(Word):
-    '''生词类 继承于:单词类'''
-##    learn = wrong = 1	#学习1次，错误1次
-    def __init__(self,word:str,trans:str,learn:int,wrong:int,review:int):
-        '''生词类初始化
-word(str):单词
-trans(str):词义
-review(int※不可为float):复习时间戳'''
-        self.word = word
-        self.trans = trans
-        self.learn = int(learn)
-        self.wrong = int(wrong)
-        self.review = int(review)
-    def strenth(self):
-        '''用于计算记忆强度
-word(Sc):生词对象
-返回值:记忆强度(float:.2f)'''
-        return round((self.learn - self.wrong)/self.learn,2)
-    def items(self):
-        return [self.word,self.trans,
-                self.learn,self.wrong,self.review]
 class Lesson:
     '''课程类'''
     def __init__(self,words:tuple,md5:str,progress:list,**info):

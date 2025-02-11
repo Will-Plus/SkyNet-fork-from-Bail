@@ -5,12 +5,12 @@ from abc import ABC,abstractmethod
 import libgui,libunf,libclass,copy
 
 class StudyModule(ABC):
-    studyModuleID:str = ''             # 学习模块的ID，如remember,write
+    studyModuleID:str                  # 学习模块的ID，如remember,write
     unflist:list[libclass.Word] = []   # 生词列表
     famlist:list[libclass.Word] = []   # 熟词列表
     def __init__(self,
-                 window:libgui.Window,   # 根窗口
-                 lesson:libclass.Lesson, # 要学习的课程对象
+                 window:libgui.Window,                    # 根窗口
+                 lesson:libclass.Lesson,                  # 要学习的课程对象
                  unfHandler:libunf.UnfamiliarWordHandler  # 生词处理器对象
                 ):
         '''初始化'''
@@ -25,7 +25,7 @@ class StudyModule(ABC):
 class Remember(StudyModule):
     '''记忆模块'''
     studyModuleID = 'remember'
-    current_word:libclass.Word = None  # 当前学习的单词
+    current_word:libclass.Word  # 当前学习的单词
 
     def __init__(self,window:libgui.RememberWindow,lesson:libclass.Lesson,unfHandler:libunf.UnfamiliarWordHandler):
         super().__init__(window,lesson,unfHandler)
@@ -66,7 +66,7 @@ class Write(StudyModule):
     studyModuleID = 'write'
     status = None   #备选：None,True,False
                     #None:未判；True:已判，正确；False:已判，错误
-    current_word:libclass.Word = None  # 当前学习的单词
+    current_word:libclass.Word  # 当前学习的单词
     def __init__(self,window:libgui.WriteWindow,lesson:libclass.Lesson,unfHandler:libunf.UnfamiliarWordHandler):
         super().__init__(window,lesson,unfHandler)
         self.index = lesson.progress[self.studyModuleID]    # 当前单词的索引
