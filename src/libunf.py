@@ -6,29 +6,70 @@
 
 from tkinter import *
 from tkinter import messagebox as msgbox,ttk
-import time,libclass,os,libfile,libgui,libstudy,random
+import time,libclass,os,libfile,libgui,libstudy,random,json
 
 class UnfamiliarWord(libclass.Word):
     '''生词类 继承于:单词类'''
-##    learn = wrong = 1	#学习1次，错误1次
-    def __init__(self,word:str,trans:str,learn:int,wrong:int,review:int):
-        '''生词类初始化
-word(str):单词
-trans(str):词义
-review(int※不可为float):复习时间戳'''
-        self.word = word
-        self.trans = trans
-        self.learn = int(learn)
-        self.wrong = int(wrong)
-        self.review = int(review)
+    right:int   # **连续**正确次数
+    # 以下是弃用的属性，为了主线分支能够快速重构，暂时保留
+    learn:int   # 学习次数
+    wrong:int   # 错误次数
+    review:int  # 下次复习时间戳
+    def __init__(self,word:str,trans:str):
+        '''生词类初始化'''
+        super().__init__(word,trans)
+    def serialize(self)->dict:
+        '''序列化为字典，方便保存为json'''
+        dic = {
+            'word': self.word,
+            'right': self.right
+        }
+        return dic
+    @classmethod
+    def unserialize(cls,dic:dict,lesson:libclass.Lesson):
+        '''从字典反序列化为对象'''
+        '''<think>
+第一个问题：反序列化时，如何通过word获得trans等Word类中的信息
+先得搞清楚哪里有这种对应关系。一个是课程文件中，一个是课程对象的words属性中。
+从课程文件中获取好不好？我觉得不好，因为课程文件的存储格式是csv，而且存储在磁盘中。
+每次读取，不仅需要磁盘io的开销，还需要繁杂的字符串操作，给人感觉效率和鲁棒性都比较低。
+那就是从课程对象的words属性中获取。
+但当前的words属性是list[libclass.Word]类型，无法实现通过word快速找到对象，需要进行遍历，效率低下。
+要不要更改Lesson.words的数据类型？
+其实可以改成dict[str:libclass.Word]类型，这样就可以快速地通过word查找对象了。
+但需要考虑一个问题：原本的list是有序的，现在改成dict是无序的。这会不会产生什么影响？
+如果放在旧版本，这还真实致命的影响：因为我的进度记录全靠列表的索引进行工作。
+但新版中，要求有乱序功能；在我的策划中，新的Lesson类也有能力在乱序模式下保持进度记录。
+这样一来，Lesson.words的顺序显得不是那么重要了。可以安全地转变为dict类型。
+所以，决定改造新版Lesson类，并通过Lesson.words获取单词对象。
+这样一来，这里就需要一个新的属性：单词所属的Lesson对象。
+同时，还要考虑当word对应的单词条目不存在时的处理方案。
+有三条思路：报错、忽略、默认值。
+报错好不好？当然不能在程序里直接raise，而是应该给用户弹个窗，让用户知道出了问题。
+这样的好处是让用户能够及时知情。但报错还不能直接退出程序，还得有个处理方案。
+忽略好不好？其实也行，既然找不到单词了，那就认为这个生词不存在就好了。这样也就排除了“默认值”方案。
+所以，最终方案是先给用户弹个窗，然后直接忽略。
+下一个问题：怎么弹窗？
+根据libgui的设计思路，所有Window对象都可以调用showerror()方法弹出错误提示框。
+所以，要想弹窗，需要一个Window对象。
+根据依赖注入原则，Window对象需要在创建对象时作为参数传入。
+但Window对象和UnfamiliarWord对象没有半毛钱关系，传进去就是徒增混乱。
+或许可以作为本方法的参数传入？我个人觉得也不太好。这里是反序列化，要那么重一个窗口干什么？
+那就需要在本方法外部处理。这里可以先报个错，自定义一个错误类型，调用者捕获这个错误，进行弹窗。
+但如果调用者没有捕获错误，会怎样？
+先需要明确本方法是在什么时候会被调用，也就是什么时候需要用到生词列表？
+在打开课程的学习窗口、生词管理窗口时、在后续进行全部生词的考察时。
+其实，这个“通过单词获取对象”的功能不仅在这个方法中会用到，在其他很多地方都会用到。
+不如放到Lesson类中，后续处理。
+</think>'''
+        obj = lesson.get_word(dic['word']).to_unf()
+        obj.right = dic['right']
+        return obj
     def strenth(self):
         '''用于计算记忆强度
 word(Sc):生词对象
 返回值:记忆强度(float:.2f)'''
         return round((self.learn - self.wrong)/self.learn,2)
-    def items(self):
-        return [self.word,self.trans,
-                self.learn,self.wrong,self.review]
     def calculate_review_time(self)->str:
         '''计算到该单词复习时刻的时间'''
         if self.review <= time.time():

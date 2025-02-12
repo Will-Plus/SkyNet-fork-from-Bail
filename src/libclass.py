@@ -6,7 +6,7 @@ LOGLEVEL = 0
 Word = Lesson = None   #先定义一下，防止循环依赖时报错AttributeError
                             #这个问题在d48ccdb2d22ddd2672e17d05bb1bf7d659c6c5e4已经出现，暂无更好解决方案
 
-import logging
+import logging,libunf
 
 class Word:
     '''单词类'''
@@ -15,14 +15,16 @@ class Word:
         self.trans = trans
     def __str__(self)->str:
         return self.word
-    def __eq__(self,b):
-        if self.word == b.word:
-            return True
-        else:
-            return False
+    def __eq__(self,b:Word):
+        return self.word == b.word
+    def to_unf(self)->libunf.UnfamiliarWord:
+        '''转为生词'''
+        obj = libunf.UnfamiliarWord(self.word,self.trans)
+        obj.right = 0
+        return obj
 class Lesson:
     '''课程类'''
-    def __init__(self,words:tuple,md5:str,progress:list,**info):
+    def __init__(self,words:dict[str:Word],md5:str,progress:list,**info):
         '''课程类初始化
 info:课程信息。包括:
 - name(str):课程简称（用于显示）
@@ -41,12 +43,26 @@ progress(list):学习进度。长度为3，类型为int，依次为记忆、听�
         self.progress = progress
 ##    def __iter__(self):
 ##        return self.words
+    def get_word(self,word:str)->Word:
+        '''根据单词字符串获取单词对象'''
+        if word not in self.words:
+            raise WordNotFoundError(self,word)
+        return self.words[word]
+
 class WrongFileVersion(Exception):
     '''课程文件版本错误'''
     def __init__(self,e):
         self.e = e
     def __str__(self) -> str:
         return self.e
+class WordNotFoundError(KeyError):
+    '''未从课程中找到单词'''
+    def __init__(self, lesson:Lesson, word:str):
+        super().__init__()
+        self.lesson = lesson
+        self.errorWord = word
+    def __str__(self):
+        return f'未从课程“{self.lesson.name}”中找到单词“{self.errorWord}”'
 
 class Logger(logging.Logger):
     def __init__(self):
