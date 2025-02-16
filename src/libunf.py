@@ -65,6 +65,11 @@ class UnfamiliarWord(libclass.Word):
         obj = lesson.get_word(dic['word']).to_unf()
         obj.right = dic['right']
         return obj
+    def to_fam(self):
+        '''变成熟词 '''
+        while self in self.lesson.unf:
+            self.lesson.unf.remove(self)
+        self.lesson.fam.append(self.lesson.get_word(self.word))
     def strenth(self):
         '''用于计算记忆强度
 word(Sc):生词对象
@@ -84,14 +89,6 @@ class UnfamiliarWordHandler:
     def __init__(self,logger:libclass.Logger):
         self.logger = logger
 
-def imp(lst:list):
-    '''从外部csv导入生词'''
-    newlst = libfile.readfromcsv()
-    lst += newlst
-    msgbox.showinfo('提示','导入成功，请重启程序。')
-def exp(lst:list):
-    '''导出生词到外部csv'''
-    libfile.saveascsv(lst)
 def readfile():
     '''读取生词文件'''
     global remlst,wrilst
@@ -108,22 +105,6 @@ def treesort(tree:ttk.Treeview,col:str,reverse:bool):
         tree.move(k,'',i)
         print(k)
     tree.heading(col,command=lambda:treesort(tree,col,True))
-def intree(remtree:ttk.Treeview,writree:ttk.Treeview):
-##    rem,lis,wri = remlst,lislst,wrilst
-    for i in remlst:
-        remtree.insert('','end',
-                       text=i.word,	#单词
-                       values=(i.trans,	#词义
-                               i.learn,i.wrong,	#学习次数，错误次数
-                               i.strenth(),	#记忆强度
-                               reviewtime(i)))	#复习时间
-    for i in wrilst:
-        writree.insert('','end',
-                       text=i.word,	#单词
-                       values=(i.trans,	#词义
-                               i.learn,i.wrong,	#学习次数，错误次数
-                               i.strenth(),	#记忆强度
-                               reviewtime(i)))	#复习时间
 def deltatime(word:UnfamiliarWord)->int:
     '''计算复习延后秒数
 word(libclass.Sc):生词对象

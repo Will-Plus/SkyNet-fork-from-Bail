@@ -6,10 +6,12 @@ LOGLEVEL = 0
 Word = Lesson = None   #先定义一下，防止循环依赖时报错AttributeError
                             #这个问题在d48ccdb2d22ddd2672e17d05bb1bf7d659c6c5e4已经出现，暂无更好解决方案
 
-import logging,libunf
+from __future__ import annotations
+import logging,libunf,libfile,os
 
 class Word:
     '''单词类'''
+    lesson:Lesson   # 在libfile.FileHandler.read_lesson_file()中传入
     def __init__(self,word:str,trans:str):
         self.word = word
         self.trans = trans
@@ -17,38 +19,50 @@ class Word:
         return self.word
     def __eq__(self,b:Word):
         return self.word == b.word
-    def to_unf(self)->libunf.UnfamiliarWord:
+    def to_unf(self):
         '''转为生词'''
         obj = libunf.UnfamiliarWord(self.word,self.trans)
         obj.right = 0
-        return obj
+        self.lesson.unf.append(obj)
+        while self in self.lesson.fam:
+            self.lesson.fam.remove(self)
 class Lesson:
     '''课程类'''
-    def __init__(self,words:dict[str:Word],md5:str,progress:list,**info):
+    def __init__(self,fileHandler:libfile.FileHandler,words:list[Word],**info):
         '''课程类初始化
 info:课程信息。包括:
 - name(str):课程简称（用于显示）
 - fullname(str):课程全称
 - author(str):课程作者/编写者（推荐附上邮箱，如：Bail <2915289604@qq.com>）
-- file_version(int):文件版本
-words(tuple):课程中包括的单词。元组中的对象类型为Word
-md5(str):课程文件的md5值，作为ID
-progress(list):学习进度。长度为3，类型为int，依次为记忆、听写、默写的学习进度'''
+words(list):课程中包括的单词。列表中的对象类型为Word'''
         self.name = info['name']
         self.fullname = info['fullname']
         self.author = info['author']
-        self.file_version = info['file_version']
-        self.words = words
-        self.md5 = md5
-        self.progress = progress
+##        self.file_version = info['file_version']  # 感觉不需要
+        self.words:dict[str,Word] = {i.word:i for i in words}
+        
+        # 读取课程中的生词和熟词
+        self.unf:list[libunf.UnfamiliarWord] = []
+        self.fam:list[Word] = []
+        # 先读取生词
+        fn = os.path.join(fileHandler.getpath(libfile.LESSONS),self.name,'unf.json')
+        unflist:list[dict] = libfile.Utils.readjson(fn)
+        for i in unflist:
+            self.unf.append(libunf.UnfamiliarWord.unserialize(i),self)
+        # 再处理熟词
+        fn = os.path.join(fileHandler.getpath(libfile.LESSONS),self.name,'fam.json')
+        famlist:list[str] = libfile.Utils.readjson(fn)
+        for i in famlist:
+            self.fam.append(self.get_word(i),self)
 ##    def __iter__(self):
 ##        return self.words
     def get_word(self,word:str)->Word:
-        '''根据单词字符串获取单词对象'''
+        '''根据单词字符串获取单词对象
+-----------
+注意抛出WordNotFoundError'''
         if word not in self.words:
             raise WordNotFoundError(self,word)
         return self.words[word]
-
 class WrongFileVersion(Exception):
     '''课程文件版本错误'''
     def __init__(self,e):

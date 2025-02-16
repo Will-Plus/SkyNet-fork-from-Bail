@@ -2,12 +2,120 @@
 #SkyNet:libfile 文件处理模块
 
 from tkinter import filedialog  #将在后期替换为libgui.filedialog，为了代码整洁
-import os,libclass,csv,shutil,libgui,__main__,json,hashlib,traceback
+from typing import Literal
+import os,libclass,csv,shutil,libgui,__main__,json,hashlib,traceback,libunf
 
 OSNAME = __main__.OSNAME
 LESSON_FILE_HEADER = 'SkyNet file\n' #课程文件头
 FILE_VERSION = 4    #当前课程文件版本
+LESSONS = 'lessons'
 
+class FileHandler:
+    def getpath(self,name:str):  #此函数现已弃用，在版本兼容时起过渡作用。新版本应直接访问path字典。
+        # if name == '<all>':
+        #     return (getpath('lessons'),getpath('sc'),getpath('plugins'),getpath('notice'),getpath('progress')) #待优化:用for循环写
+        if name in ('cache','data','icon'):
+            return path[name][OSNAME]
+        else:
+            return path[name]
+    def readfile(fn:str)->libclass.Lesson:
+        '''读取课程文件
+    fn(str):文件名
+    返回值:课程对象(libclass.Lesson)'''
+        #读取课程信息
+        with open(fn,encoding='utf-8') as file:
+            # 校验文件头
+            header = file.readline()
+            if header != LESSON_FILE_HEADER:
+                raise BadLessonFile(fn,'header')
+            # 读取元信息
+            try:
+                lesson_info = json.loads(file.readline())
+            except json.decoder.JSONDecodeError:
+                raise BadLessonFile(fn,'info')
+            infos = ('name','full_name','author','file_version')
+            for i in infos:
+                if i not in lesson_info:
+                    raise BadLessonFile(fn,'info')
+        # 校验课程简称的合法性
+        invalid_chars = '/\\*:?<>\"\'|'
+        for i in invalid_chars:
+            if i in lesson_info['name']:
+                raise BadLessonFile(fn,'name') from KeyError(f'需要课程元信息: {i}')
+        #比对文件版本
+        current_file_version = lesson_info['file_version']
+        if current_file_version != FILE_VERSION:
+            raise BadLessonFile(fn,'version',invalid_version=current_file_version)
+        #读取课程内容
+        words = []
+        for i in Utils.readfromcsv(fn,2):
+            try:
+                word = libclass.Word(*i)
+            except Exception as e:
+                raise BadLessonFile(fn,'body',raw_data=i) from e
+            else:
+                words.append(word)
+        # 生成课程对象
+        lesson = libclass.Lesson(**lesson_info,words=words)   #使用`words=words`是为了避免参数传乱出现bug
+        for i in lesson.words.values():
+            i.lesson = lesson
+        return lesson
+
+class Utils:
+    @staticmethod
+    def readjson(fn:str)->list|dict:
+        with open(fn) as file:
+            return json.load(file)
+    @staticmethod
+    def readfromcsv(fn:str=None,jump_lines:int=1)->list:
+        '''从csv读取内容
+    fn(str):文件名。若不指定则呼出文件选择窗口手动选择
+    jump_lines(int):跳过行数。若不指定则跳过第一行
+    返回值:二维列表，第一维为每一行，第二维为这一行的每一列(list)'''
+        if not fn:
+            fn = filedialog.askopenfilename(filetypes=[('CSV表格','.csv')])
+        lst = []
+        with open(fn,newline='',encoding='utf-8') as file:
+            reader = csv.reader(file,delimiter='\t')
+            for index,items in enumerate(reader):
+                if index in range(jump_lines):  #跳过指定行
+                    continue
+                lst.append(items)
+        return lst
+    @staticmethod
+    def saveascsv(lst:list,fn=None):
+        if not fn:
+            fn = filedialog.asksaveasfilename(filetypes=[('CSV表格','.csv')])
+        with open(fn,'w',newline='',encoding='utf-8') as file:
+            writer = csv.writer(file,delimiter='\t')
+            writer.writerow(['单词','词义','学习次数','错误次数','复习时间'])
+            for i in lst:
+                writer.writerow(i.items())
+        
+class BadLessonFile(ValueError):
+    def __init__(self, fn:str,type:Literal['header','name','version','info','body'],**kw):
+        super().__init__()
+        self.filename = fn
+        self.type = type
+        if self.type == 'version':
+            if 'invalid_version' in kw:
+                self.invalid_version:int = kw['invalid_version']
+            else:
+                raise ValueError('文件版本异常必须提供错误的文件版本')
+        if self.type == 'body':
+            if 'raw_data' in kw:
+                self.raw_data:str = kw['raw_data']
+            else:
+                raise ValueError('课程内容异常必须包含引发异常的原始数据')
+    def __str__(self):
+        match self.type:
+            case 'name':
+                return '课程简称中不能有无法作为文件名的特殊字符'
+            case 'version':
+                return f'{self.filename}: 错误的文件版本、{self.invalid_version}，预期为{FILE_VERSION}'
+            case 'body':
+                return f'{self.filename}: {self.raw_data}: 内容格式错误'
+        return ''
 home = os.path.expanduser('~')
 path = {
     'cache':{
@@ -67,56 +175,6 @@ fn(str):文件名
             return True
         else:
             return False
-def readfile(fn:str)->libclass.Lesson:
-    '''读取课程文件
-fn(str):文件名
-返回值:课程对象(libclass.Lesson)'''
-    #读取课程信息
-    with open(fn,encoding='utf-8') as file:
-        file.readline()
-        lesson_info = json.loads(file.readline())
-    #比对文件版本
-    current_file_version = lesson_info['file_version']
-    if current_file_version != FILE_VERSION:
-        raise libclass.WrongFileVersion(f'{fn}: {current_file_version}，预期为{FILE_VERSION}')
-    #读取课程内容
-    words = tuple(libclass.Word(*i) for i in readfromcsv(fn,2)) #错误
-    md5 = get_file_md5(fn)
-    progress_file_name = os.path.join(path['progress'],md5)
-    with open(progress_file_name,encoding='utf-8') as progress_file:
-        progress = list(map(int,progress_file.readlines()))
-    lesson = libclass.Lesson(**lesson_info,words=words,md5=md5,progress=progress)   #使用`words=words`是为了避免参数传乱出现bug
-    return lesson
-def readfromcsv(fn:str=None,jump_lines:int=1)->list:
-    '''从csv读取内容
-fn(str):文件名。若不指定则呼出文件选择窗口手动选择
-jump_lines(int):跳过行数。若不指定则跳过第一行
-返回值:二维列表，第一维为每一行，第二维为这一行的每一列(list)'''
-    if not fn:
-        fn = filedialog.askopenfilename(filetypes=[('CSV表格','.csv')])
-    lst = []
-    with open(fn,newline='',encoding='utf-8') as file:
-        reader = csv.reader(file,delimiter='\t')
-        for index,items in enumerate(reader):
-            if index in range(jump_lines):  #跳过指定行
-                continue
-            lst.append(items)
-    return lst
-def saveascsv(lst:list,fn=None):
-    if not fn:
-        fn = filedialog.asksaveasfilename(filetypes=[('CSV表格','.csv')])
-    with open(fn,'w',newline='',encoding='utf-8') as file:
-        writer = csv.writer(file,delimiter='\t')
-        writer.writerow(['单词','词义','学习次数','错误次数','复习时间'])
-        for i in lst:
-            writer.writerow(i.items())
-def getpath(name:str):  #此函数现已弃用，在版本兼容时起过渡作用。新版本应直接访问path字典。
-    if name == '<all>':
-        return (getpath('lessons'),getpath('sc'),getpath('plugins'),getpath('notice'),getpath('progress')) #待优化:用for循环写
-    elif name in ('cache','data','icon'):
-        return path[name][OSNAME]
-    else:
-        return path[name]
 def add_lesson():
     '''添加课程文件'''
     fn = filedialog.askopenfilename()
