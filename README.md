@@ -7,7 +7,7 @@
 
 - 项目地址：https://github.com/BailPlus/bssenglish
 
-- 本项目地址：https://github.com/Will-Plus/SkyNet--forkfrom-Bail
+- 本项目地址：https://github.com/Will-Plus/SkyNet-fork-from-Bail
 
 # SkyNet 主程序使用方法（开发者版本）：
 
