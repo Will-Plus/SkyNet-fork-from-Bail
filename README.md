@@ -37,7 +37,7 @@
 5. 点击`处理并导出乱序文件`按钮，开始乱序。
 6. 乱序完成后，自动弹出保存乱序后的单词文件所在位置的文件资源管理器。
 
-# SkyNet 单词乱序处理器使用方法（测试用户版本）：
+# SkyNet 主程序使用方法（测试用户版本）：
 
 1. 安装`Python3.x`环境
 2. 下载源代码文件 [zip格式](https://github.com/Will-Plus/SkyNet-fork-from-Bail/archive/refs/heads/main.zip)
