@@ -2,8 +2,9 @@
 
 - 项目名称：SkyNet （天网）
 - 项目描述：SkyNet（天网）考察英语单词，并附上单词释义
-- ![LOGO]("C:\Users\Will\Downloads\文心一言AI作图_20250310193021.png")
-
+  
+- [![沙漠中的岩石图片](/assets/img/shiprock.jpg "Shiprock")](https://markdown.com.cn)
+  
 - 特别鸣谢：Bail的bssenglish项目对此项目的支持与帮助，再次感谢！
 
 - 项目地址：(https://github.com/BailPlus/bssenglish)
