@@ -12,7 +12,7 @@
 from tkinter import Tk
 import sys,os
 #按系统类型配置导入模块的目录
-OSNAME = None   #备选:None,deepin
+OSNAME = "deepin"  #备选:None,deepin
 OSNAME = OSNAME if OSNAME else os.name
 if OSNAME in ('nt','deepin'):
     import_path = '.'

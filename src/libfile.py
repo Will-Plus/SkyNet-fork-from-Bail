@@ -23,10 +23,10 @@ path = {
         'termux':os.path.join(home,'.config','SkyNet')
     },
     'icon':{    #不添加到<all>
-        'nt':os.path.join(os.getcwd(),'bss.png'),
-        'posix':'/usr/share/pixmaps/bss.png',
-        'deepin':os.path.join(os.getcwd(),'bss.png'),   #不用绝对路径的原因是开发要用这个配置
-        'termux':'/data/data/com.termux/files/usr/share/pixmaps/bss.png'
+        'nt':os.path.join(os.getcwd(),'SkyNet.png'),
+        'posix':'/usr/share/pixmaps/SkyNet.png',
+        'deepin':os.path.join(os.getcwd(),'SkyNet.png'),   #不用绝对路径的原因是开发要用这个配置
+        'termux':'/data/data/com.termux/files/usr/share/pixmaps/SkyNet.png'
     }
 }
 path1 = {
