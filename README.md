@@ -1,24 +1,19 @@
 # SkyNet （天网）
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/Will-Plus/SkyNet-fork-from-Bail)
-[![star](https://gitee.com/will-plus/SkyNet-fork-from-Bail/badge/star.svg?theme=dark)](https://gitee.com/will-plus/SkyNet-fork-from-Bail/stargazers)
 ![GitHub watchers](https://img.shields.io/github/watchers/Will-Plus/SkyNet-fork-from-Bail)
-
 ![GitHub forks](https://img.shields.io/github/forks/Will-Plus/SkyNet-fork-from-Bail)
-[![fork](https://gitee.com/will-plus/SkyNet-fork-from-Bail/badge/fork.svg?theme=dark)](https://gitee.com/will-plus/SkyNet-fork-from-Bail/members)
 
 ![GitHub contributors](https://img.shields.io/github/contributors/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub Discussions](https://img.shields.io/github/discussions/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Will-Plus/SkyNet-fork-from-Bail)
 
 ![GitHub License](https://img.shields.io/github/license/Will-Plus/SkyNet-fork-from-Bail)
-![GitHub top language](https://img.shields.io/github/languages/top/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Will-Plus/SkyNet-fork-from-Bail/total)
 
 ![GitHub Tag](https://img.shields.io/github/v/tag/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub Release](https://img.shields.io/github/v/release/Will-Plus/SkyNet-fork-from-Bail)
 
-[![Will-Plus/SkyNet-fork-from-Bail](https://gitee.com/will-plus/SkyNet-fork-from-Bail/widgets/widget_card.svg?colors=4183c4,ffffff,ffffff,e3e9ed,666666,9b9b9b)](https://gitee.com/will-plus/SkyNet-fork-from-Bail)
 - 项目名称：SkyNet （天网）
 
 - 项目描述：SkyNet（天网）考察英语单词，并附上单词释义
