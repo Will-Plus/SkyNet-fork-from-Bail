@@ -133,31 +133,47 @@ class UnfWindow(Toplevel,Window):
 class UnfFrame(LabelFrame):
     '''生词模块界面中各学习模块的框架'''
     # 扩展出一个类来，是因为要自定义属性，不然IDE不认识自定义属性
-    def __init__(self,title:str,unfWindow:UnfWindow):
-        super().__init__(unfWindow,text=title)
+    def __init__(self,moduleID:str,unfWindow:UnfWindow,unflist:list[libunf.UnfamiliarWord]):
+        super().__init__(unfWindow,text=moduleID)
 
         self.btnsFrame = Frame(self)
-        self.reviewBtn = Button(self.btnsFrame,text='立即复习',command=lambda:review(self,'remember'))
+        self.reviewBtn = Button(self.btnsFrame,text='立即复习',command=lambda:review(self,moduleID))
         self.reviewBtn.grid()
 
         self.tree = ttk.Treeview(self,columns=('词义','学习次数','错误次数','记忆强度','复习时间'))
-        self.tree.heading('词义',text='词义',command=lambda:treesort(self,'词义',False))
-        self.tree.heading('学习次数',text='学习次数',command=lambda:treesort(self,'学习次数',False))
-        self.tree.heading('错误次数',text='错误次数',command=lambda:treesort(self,'错误次数',False))
-        self.tree.heading('记忆强度',text='记忆强度',command=lambda:treesort(self,'记忆强度',False))
-        self.tree.heading('复习时间',text='复习时间',command=lambda:treesort(self,'复习时间',False))
+        self.tree.heading('#0',text='单词',command=lambda:self.treesort(self,'#0',False))
+        self.tree.heading('词义',text='词义',command=lambda:self.treesort(self,'词义',False))
+        self.tree.heading('学习次数',text='学习次数',command=lambda:self.treesort(self,'学习次数',False))
+        self.tree.heading('错误次数',text='错误次数',command=lambda:self.treesort(self,'错误次数',False))
+        self.tree.heading('记忆强度',text='记忆强度',command=lambda:self.treesort(self,'记忆强度',False))
+        self.tree.heading('复习时间',text='复习时间',command=lambda:self.treesort(self,'复习时间',False))
 
         self.btnsFrame.pack()
         self.tree.pack()
-    def intree(self,unflist:list[libunf.UnfamiliarWord]):
-##    rem,lis,wri = remlst,lislst,wrilst
+
+        # 向Treeview中插入数据
         for i in unflist:
-            self.insert('','end',
-                        text=i.word,	                    #单词
-                        values=(i.trans,	                #词义
-                                i.learn,i.wrong,	        #学习次数，错误次数
-                                i.strenth(),	            #记忆强度
-                                i.calculate_review_time()))	#复习时间
+            self.tree.insert('',END,text=i.word,                #单词
+                             values=(i.trans,	                #词义
+                                     i.learn,i.wrong,	        #学习次数，错误次数
+                                     i.strenth(),	            #记忆强度
+                                     i.calculate_review_time()))#复习时间
+    def treesort(self,col:str,reverse:bool):
+        '''排序函数
+col(str):列名（注意不是列标题）
+reverse(bool):逆向排序性'''
+        # 获取所有行
+        if col == '#0':
+            l = [(self.tree.item(k, "text"), k) for k in self.tree.get_children('')]
+        else:
+            l = [self.tree.set((k,col),k) for k in self.tree.get_children('')]
+        # 进行排序
+        l.sort(reverse=reverse)
+        # 写回Treeview
+        for i,(_,k) in enumerate(l):
+            self.tree.move(k,'',i)
+        # 更新command
+        self.tree.heading(col,command=lambda:self.treesort(self.tree,col,not reverse))
 
 def unf_window_factory(root:RootWindow,moduleIds:tuple[str],logger:libclass.Logger)->UnfWindow:
     '''生词管理窗口工厂

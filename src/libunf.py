@@ -97,14 +97,6 @@ def readfile():
         fn = os.path.join(libfile.getpath('sc'),f'{i}.csv')
         lst0 = libfile.readfromcsv(fn)
         lst += [libclass.UnfamiliarWord(*i) for i in lst0]
-def treesort(tree:ttk.Treeview,col:str,reverse:bool):
-    print(tree.get_children(''))
-    l = [tree.set((k,col),k) for k in tree.get_children('')]
-    l.sort(reverse)
-    for i,(val,k) in enumerate(l):
-        tree.move(k,'',i)
-        print(k)
-    tree.heading(col,command=lambda:treesort(tree,col,True))
 def deltatime(word:UnfamiliarWord)->int:
     '''计算复习延后秒数
 word(libclass.Sc):生词对象

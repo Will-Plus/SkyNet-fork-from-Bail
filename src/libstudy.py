@@ -6,37 +6,31 @@ import libgui,libunf,libclass,copy
 
 class StudyModule(ABC):
     studyModuleID:str                  # 学习模块的ID，如remember,write
+    window:libgui.Window               # 学习模块的图形界面
     unflist:list[libclass.Word] = []   # 生词列表
     famlist:list[libclass.Word] = []   # 熟词列表
     def __init__(self,
-                 window:libgui.Window,                    # 根窗口
                  lesson:libclass.Lesson,                  # 要学习的课程对象
                  unfHandler:libunf.UnfamiliarWordHandler  # 生词处理器对象
                 ):
         '''初始化'''
-        self.window = window
         self.lesson = lesson
         self.unfHandler = unfHandler
-        self.wlst = copy.copy(self.lesson.words)
     @abstractmethod
     def __call__(self):
         '''进行课程的学习'''
+    @abstractmethod
+    def review(self):
+        '''进行课程生词的复习'''
 
 class Remember(StudyModule):
     '''记忆模块'''
     studyModuleID = 'remember'
+    window:libgui.RememberWindow
     current_word:libclass.Word  # 当前学习的单词
 
-    def __init__(self,window:libgui.RememberWindow,lesson:libclass.Lesson,unfHandler:libunf.UnfamiliarWordHandler):
-        super().__init__(window,lesson,unfHandler)
-        self.index = lesson.progress[self.studyModuleID]    # 当前单词的索引
-        self.window = window    # 临时解决vscode不认识子类的问题
-        #初始化界面
-        self.window.protocol('WM_DELETE_WINDOW',self.close)
-        self.window.huibtn.config(command=self.know)
-        self.window.buhuibtn.config(command=self.no)
-        self.window.duibtn.config(command=self.right)
-        self.window.buduibtn.config(command=self.no)
+    def __init__(self,lesson:libclass.Lesson,unfHandler:libunf.UnfamiliarWordHandler):
+        super().__init__(lesson,unfHandler)
     def know(self): #会，进入看对错
         self.window.check_right(self.current_word)
     def right(self): #对，标为熟词并进入下一个单词
@@ -59,8 +53,18 @@ class Remember(StudyModule):
         self.unfHandler.mark(self.studyModuleID,self.unflist,self.famlist)
         self.lesson.progress[self.studyModuleID] = self.index
         self.window.destroy()
-    def __call__(self):
+    def __call__(self,window:libgui.RememberWindow):
+        self.window = window
+        #初始化界面
+        self.window.protocol('WM_DELETE_WINDOW',self.close)
+        self.window.huibtn.config(command=self.know)
+        self.window.buhuibtn.config(command=self.no)
+        self.window.duibtn.config(command=self.right)
+        self.window.buduibtn.config(command=self.no)
+        
         self.nextword()
+    def review(self,window:libgui.RememberWindow):
+        self.window = window
 class Write(StudyModule):
     '''默写模块'''
     studyModuleID = 'write'
