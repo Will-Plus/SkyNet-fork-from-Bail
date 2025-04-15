@@ -2,7 +2,6 @@
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub watchers](https://img.shields.io/github/watchers/Will-Plus/SkyNet-fork-from-Bail)
-![GitHub forks](https://img.shields.io/github/forks/Will-Plus/SkyNet-fork-from-Bail)
 
 ![GitHub contributors](https://img.shields.io/github/contributors/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub Discussions](https://img.shields.io/github/discussions/Will-Plus/SkyNet-fork-from-Bail)
