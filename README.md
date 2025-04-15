@@ -7,10 +7,8 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub Discussions](https://img.shields.io/github/discussions/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Will-Plus/SkyNet-fork-from-Bail)
-
 ![GitHub License](https://img.shields.io/github/license/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Will-Plus/SkyNet-fork-from-Bail/total)
-
 ![GitHub Tag](https://img.shields.io/github/v/tag/Will-Plus/SkyNet-fork-from-Bail)
 ![GitHub Release](https://img.shields.io/github/v/release/Will-Plus/SkyNet-fork-from-Bail)
 
